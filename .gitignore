@@ -1,0 +1,30 @@
+# --- General ---
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+coverage/
+
+# --- IDEs ---
+.idea/
+.vscode/
+*.iml
+
+# --- Node / React Native / Expo (if chosen) ---
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.tsbuildinfo
+
+# --- Flutter / Dart (if chosen) ---
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+
+# --- Local tooling ---
+.claude/settings.local.json
