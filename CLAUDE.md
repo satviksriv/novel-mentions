@@ -33,6 +33,7 @@ A mobile companion app for readers: for a given novel or memoir, it catalogs the
 [docs/WORKFLOW.md](docs/WORKFLOW.md) defines the process; the essentials:
 
 - Never commit directly to `main` once app code exists — feature branches named `<type>/<issue-number>-<slug>` (e.g. `feat/7-library-book-detail`), squash-merged via PRs with `Closes #<n>`.
+- This rule is discipline-based by explicit owner decision (July 2026): branch protection isn't available (free plan, private repo) and the owner declined local git hooks — follow the rule, but don't suggest or add enforcement mechanisms.
 - Conventional commits (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`).
 - Every non-trivial change gets an issue first, labeled (`feature`, `bug`, `design`, `infra`, `content`, `documentation`) and assigned a phase milestone.
 - Remote: private repo `satviksriv/novel-mentions`. The GitHub CLI is installed at `C:\Program Files\GitHub CLI\gh.exe` — it is typically **not on PATH** in this environment, so invoke it by full path.
