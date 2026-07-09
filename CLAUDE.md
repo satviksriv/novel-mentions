@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository is in the **planning/design phase and contains no app code yet**. Two decisions gate implementation (tracked as issues #1 and #2):
 
 1. **Stack is undecided** — React Native + Expo vs Flutter. Hard constraint: development happens on a Windows machine with an iPhone 16 as the test device, so there is no local iOS build capability.
-2. **Visual design is being produced outside this repo** (a separate design session will deliver mockups + color/type/spacing tokens). Do not hard-code visuals; all screens must be built against a theme/token layer so the delivered spec drops in.
+2. **Visual design is being produced outside this repo** (a separate design session working from [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) will deliver mockups + color/type/spacing tokens). Do not hard-code visuals; all screens must be built against a theme/token layer so the delivered spec drops in.
 
 Do not scaffold the app or add build tooling until issue #1 is decided. There are no build/lint/test commands yet — add them to this file when the stack lands.
 
