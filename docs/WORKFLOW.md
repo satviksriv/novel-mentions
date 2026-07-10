@@ -38,8 +38,8 @@ Keep commits small and single-purpose; the summary line ≤ 72 chars.
 ## Issues and milestones
 
 - Every non-trivial piece of work gets a GitHub issue before it gets a branch.
-- Issues carry a kind label (`feature`, `bug`, `docs`, `design`, `infra`) and a
-  milestone.
+- Issues carry a kind label (`feature`, `bug`, `documentation`, `design`,
+  `content`, `infra`) and a milestone.
 - Milestones mirror the roadmap: **Phase 1 — MVP**, **Phase 2 — Community**,
   **Phase 3 — Integrations**.
 
