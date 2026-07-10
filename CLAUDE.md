@@ -4,16 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state — read before doing anything
 
-This repository is in the **planning/design phase and contains no app code yet**. Two decisions gate implementation (tracked as issues #1 and #2):
+This repository is in the **planning/design phase and contains no app code yet**. One decision gates implementation (tracked as issue #1):
 
 1. **Stack is undecided** — React Native + Expo vs Flutter. Hard constraint: development happens on a Windows machine with an iPhone 16 as the test device, so there is no local iOS build capability.
-2. **Visual design is being produced outside this repo** (a separate design session working from [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) will deliver mockups + color/type/spacing tokens). Do not hard-code visuals; all screens must be built against a theme/token layer so the delivered spec drops in.
+
+**Visual design is delivered** (issue #2): [docs/design_handoff_novel_mentions/](docs/design_handoff_novel_mentions/README.md). The README is the authoritative spec — its Addenda section supersedes the body text where they conflict. `Novel Mentions.dc.html` is a visual reference only; never port its HTML/SVG/CSS. Do not hard-code visuals; all screens must be built against a theme/token layer holding the README's token values.
 
 Do not scaffold the app or add build tooling until issue #1 is decided. There are no build/lint/test commands yet — add them to this file when the stack lands.
 
 ## What the app is
 
-A mobile companion app for readers: for a given novel or memoir, it catalogs the cultural references the author mentions (songs, movies, quotes, books) — where they appear, why they were mentioned, and what the character/author was thinking. Users keep private notes and log their own mentions, which are fact-checked before publication to others (Phase 2).
+A mobile companion app for readers: for a given novel or memoir, it catalogs the cultural references the author mentions (songs, movies, quotes, books, places) — where they appear, why they were mentioned, and what the character/author was thinking. Users keep private notes, log their own mentions (fact-checked before publication to others — Phase 2), and can add books to their library via a public books-API lookup (local-only in MVP).
 
 ## Architecture
 
@@ -26,7 +27,7 @@ A mobile companion app for readers: for a given novel or memoir, it catalogs the
 - **Local-first**: published content always readable offline; user writes go to the local DB first.
 - **One JSON schema everywhere**: bundled seed assets, the AI extraction script's output, and future API payloads share the same mention/book shape.
 - **Excerpts stay short** (a sentence or two) — fair-use commentary, never long passages of copyrighted text.
-- **Color system**: per-book palettes (curated hexes in seed JSON) theme book screens; fixed kind colors app-wide (song teal, movie coral, quote amber, book purple, other gray); status colors semantic. Light and dark variants required for every pair.
+- **Color system**: per-book palettes theme book screens (curated hexes in seed JSON; user-added books derive theirs from the cover, with a house fallback); fixed kind colors app-wide (song teal, movie coral, quote amber, book purple, place blue, other gray); status colors semantic. Light and dark variants required for every pair. Exact values: the handoff README's token tables.
 
 ## Git workflow
 
