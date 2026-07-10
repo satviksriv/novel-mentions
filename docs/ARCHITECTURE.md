@@ -7,7 +7,7 @@ A companion app for readers: for a given novel (or autobiography/memoir), it cat
 Decisions so far:
 - **Content**: mix of AI-assisted extraction (offline, human-reviewed before publishing) + community-contributed mentions (fact-checked before publishing).
 - **User contributions**: written notes (private) + user-logged mentions (private until submitted and approved).
-- **Platform**: mobile-first. **Stack is parked** — candidates are React Native + Expo (best dev loop for Windows PC + iPhone: live testing via Expo Go, no Mac) vs Flutter (no local iOS builds on Windows; iPhone testing only via cloud CI + TestFlight). Architecture below is stack-agnostic.
+- **Platform**: mobile-first. **Stack: React Native + Expo** (decided July 2026, issue #1) — managed workflow, TypeScript, expo-router; stay Expo Go-compatible for all of Phase 1 (only bundled/pure-JS modules, installed via `npx expo install`). Rationale: Windows dev machine + iPhone 16 test device means no local iOS builds ever; Expo Go gives a live on-device iPhone loop with no Mac or Apple account, and one codebase ships to both App Store and Play Store via EAS Build/Submit from Windows (Flutter has no comparable iOS dev loop from Windows). If a custom native module becomes unavoidable (e.g. native cover-palette extraction), switch to an EAS cloud development build — that step, and TestFlight/App Store in Phase 3, is when the Apple Developer account ($99/yr) is needed. Architecture below remains stack-agnostic at the layer boundaries.
 - **Scope**: Lean MVP first — local-first, no accounts/backend. Phase 2 adds backend + community.
 
 ## Domain model
@@ -116,7 +116,7 @@ Two curated books (~8–12 mentions each), short excerpts + original commentary 
 
 ## Open decisions
 
-1. **Stack**: React Native + Expo vs Flutter vs PWA. (Constraint: Windows dev machine + iPhone 16 test device.)
+1. ~~**Stack**~~ — decided: React Native + Expo (see "Decisions so far" above; discussion on issue #1).
 2. **Backend** (Phase 2): Supabase vs Firebase vs custom.
 3. **Moderation model** (Phase 2): owner-as-moderator with AI assist vs heavier automation.
 4. **Books-lookup API** for add-a-book: Open Library vs Google Books vs other (needs cover images + no-auth or free-tier access).

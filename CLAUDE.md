@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state — read before doing anything
 
-This repository is in the **planning/design phase and contains no app code yet**. One decision gates implementation (tracked as issue #1):
+This repository **contains no app code yet**; implementation is unblocked and starts with the scaffold (issue #3).
 
-1. **Stack is undecided** — React Native + Expo vs Flutter. Hard constraint: development happens on a Windows machine with an iPhone 16 as the test device, so there is no local iOS build capability.
+**Stack is decided** (issue #1, July 2026): **React Native + Expo** — managed workflow, TypeScript, expo-router. Hard constraint driving it: development happens on a Windows machine with an iPhone 16 as the test device (no local iOS builds; Expo Go is the dev loop). **Stay Expo Go-compatible for all of Phase 1**: only Expo-bundled or pure-JS modules, added via `npx expo install`; do not introduce libraries requiring custom native code without flagging that this forces a switch to EAS development builds.
 
 **Visual design is delivered** (issue #2): [docs/design_handoff_novel_mentions/](docs/design_handoff_novel_mentions/README.md). The README is the authoritative spec — its Addenda section supersedes the body text where they conflict. `Novel Mentions.dc.html` is a visual reference only; never port its HTML/SVG/CSS. Do not hard-code visuals; all screens must be built against a theme/token layer holding the README's token values.
 
-Do not scaffold the app or add build tooling until issue #1 is decided. There are no build/lint/test commands yet — add them to this file when the stack lands.
+There are no build/lint/test commands yet — add them to this file when the scaffold (issue #3) lands.
 
 ## What the app is
 

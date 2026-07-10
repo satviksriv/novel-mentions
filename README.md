@@ -14,11 +14,11 @@ readers.
 ## Status
 
 **Pre-implementation.** The architecture is settled
-([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)) and the visual design is
+([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)), the visual design is
 delivered
-([docs/design_handoff_novel_mentions/](docs/design_handoff_novel_mentions/README.md));
-implementation starts once the stack decision lands (issue #1). No app code
-yet.
+([docs/design_handoff_novel_mentions/](docs/design_handoff_novel_mentions/README.md)),
+and the stack is decided (issue #1); implementation starts with the app
+scaffold (issue #3). No app code yet.
 
 ## Roadmap
 
@@ -32,9 +32,11 @@ yet.
 
 ## Stack
 
-Mobile-first; final stack decision is parked between React Native + Expo and
-Flutter (see "Open decisions" in the architecture doc). Development happens on
-Windows with an iPhone as the primary test device.
+**React Native + Expo** (managed workflow, TypeScript, expo-router), staying
+Expo Go-compatible throughout Phase 1. Development happens on Windows with an
+iPhone as the primary test device — Expo Go provides the live on-device loop,
+and EAS handles cloud iOS/Android builds for store releases later. Rationale:
+"Decisions so far" in the architecture doc and the discussion on issue #1.
 
 ## Development workflow
 
