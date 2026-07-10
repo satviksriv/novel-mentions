@@ -10,6 +10,8 @@ This repository **contains no app code yet**; implementation is unblocked and st
 
 **Visual design is delivered** (issue #2): [docs/design_handoff_novel_mentions/](docs/design_handoff_novel_mentions/README.md). The README is the authoritative spec — its Addenda section supersedes the body text where they conflict. `Novel Mentions.dc.html` is a visual reference only; never port its HTML/SVG/CSS. Do not hard-code visuals; all screens must be built against a theme/token layer holding the README's token values.
 
+Both the handoff README and [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) predate the stack decision — ignore their "stack is undecided" language. The brief was the *input* to the design session and is historical; where it disagrees with the handoff, the handoff wins.
+
 There are no build/lint/test commands yet — add them to this file when the scaffold (issue #3) lands.
 
 ## What the app is
@@ -36,6 +38,7 @@ Roadmap: **Phase 1 — MVP** (local-first, no accounts/backend, two seed books) 
 [docs/WORKFLOW.md](docs/WORKFLOW.md) defines the process; the essentials:
 
 - Never commit directly to `main` once app code exists — feature branches named `<type>/<issue-number>-<slug>` (e.g. `feat/7-library-book-detail`), squash-merged via PRs with `Closes #<n>`.
+- **Claude develops, the owner merges** (owner decision, July 2026): branch, commit, push, and open the PR, then stop — never run `gh pr merge` or merge by any other route. The flow ends at "PR is open, ready for review."
 - This rule is discipline-based by explicit owner decision (July 2026): branch protection isn't available (free plan, private repo) and the owner declined local git hooks — follow the rule, but don't suggest or add enforcement mechanisms.
 - Conventional commits (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`).
 - Every non-trivial change gets an issue first, labeled (`feature`, `bug`, `design`, `infra`, `content`, `documentation`) and assigned a phase milestone.
