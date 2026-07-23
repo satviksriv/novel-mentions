@@ -12,19 +12,27 @@ coverage/
 .vscode/
 *.iml
 
-# --- Node / React Native / Expo (if chosen) ---
+# --- Node / React Native / Expo ---
 node_modules/
 .expo/
 .expo-shared/
 dist/
 web-build/
 *.tsbuildinfo
+expo-env.d.ts
+.metro-health-check*
 
-# --- Flutter / Dart (if chosen) ---
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-build/
+# --- Native (generated / signing) ---
+/ios
+/android
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
 
 # --- Local tooling ---
 .claude/settings.local.json

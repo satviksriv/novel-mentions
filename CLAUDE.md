@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state — read before doing anything
 
-This repository **contains no app code yet**; implementation is unblocked and starts with the scaffold (issue #3).
+The app **scaffold is in place** (issue #3): an Expo (SDK 54, managed) + TypeScript + expo-router project rooted in `src/`, with the theme/token layer and a two-tab navigation shell. Feature screens (issues #4–#15) build on top of it.
+
+> **SDK 54, not latest**: the project targets Expo SDK 54 because that's what the released Expo Go supports on the test iPhone. Do not bump the SDK (via `create-expo-app` upgrades or `expo install --fix` to a newer major) unless Expo Go on the device supports it — a newer SDK makes the app unloadable in Expo Go, which is the Phase 1 dev loop.
 
 **Stack is decided** (issue #1, July 2026): **React Native + Expo** — managed workflow, TypeScript, expo-router. Hard constraint driving it: development happens on a Windows machine with an iPhone 16 as the test device (no local iOS builds; Expo Go is the dev loop). **Stay Expo Go-compatible for all of Phase 1**: only Expo-bundled or pure-JS modules, added via `npx expo install`; do not introduce libraries requiring custom native code without flagging that this forces a switch to EAS development builds.
 
@@ -12,7 +14,24 @@ This repository **contains no app code yet**; implementation is unblocked and st
 
 Both the handoff README and [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) predate the stack decision — ignore their "stack is undecided" language. The brief was the *input* to the design session and is historical; where it disagrees with the handoff, the handoff wins.
 
-There are no build/lint/test commands yet — add them to this file when the scaffold (issue #3) lands.
+## Development
+
+Requires **Node ≥ 20.19.4** (`.nvmrc` pins 24; enforced via `package.json` engines). Install deps with `npm install`. Add new libraries with `npx expo install <pkg>` (never bare `npm install <pkg>`) so versions stay SDK-compatible — and keep them Expo Go-compatible per the Phase 1 constraint above.
+
+Commands:
+- `npm start` — start the Expo dev server (scan the QR with Expo Go on the iPhone; the dev loop).
+- `npm run ios` / `npm run android` / `npm run web` — start targeting a platform.
+- `npm run typecheck` — `tsc --noEmit`.
+- `npm run lint` — `expo lint` (ESLint flat config, `eslint-config-expo`).
+
+There is no test runner yet — add one (and its command here) when the first testable logic lands.
+
+### Project structure
+- `src/app/` — expo-router routes. `(tabs)/` holds the tab roots (`index` = Library, `my-stuff` = My stuff); `book/[id]` and `mention/[id]` are pushed detail screens (sibling stack routes, so the tab bar hides on push). `_layout.tsx` loads fonts, gates the splash, and wires the theme.
+- `src/theme/` — the token layer. `tokens.ts` holds the handoff values (mode-dependent ones as `{light,dark}`); `resolveTheme`/`resolveBookPalette` flatten them for the active scheme; consume via `useTheme()` / `useBookPalette()`. **Never hard-code hexes, sizes, or fonts in screens — pull from the theme.**
+- `src/hooks/` — small shared hooks (e.g. `use-color-scheme`).
+- Path alias `@/*` → `src/*`.
+- Fonts: Newsreader + Hanken Grotesk via `@expo-google-fonts/*`, imported by **per-weight subpath** (not the package root) so Metro bundles only the faces in use; likewise import icons as `@expo/vector-icons/Ionicons`, not from the package root.
 
 ## What the app is
 
