@@ -1,10 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { useTheme } from '@/theme';
+
 export default function Index() {
+  const t = useTheme();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Novel Mentions</Text>
-      <Text style={styles.subtitle}>Scaffold in place — theme layer and tabs land next.</Text>
+    <View style={[styles.container, { backgroundColor: t.color.bg, padding: t.spacing.screen }]}>
+      <Text style={[t.type.screenTitle, { color: t.color.text }]}>Novel Mentions</Text>
+      <Text style={[t.type.subline, { color: t.color.text2, textAlign: 'center' }]}>
+        Theme layer wired — navigation shell lands next.
+      </Text>
     </View>
   );
 }
@@ -14,16 +20,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
     gap: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '600',
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    opacity: 0.7,
   },
 });
