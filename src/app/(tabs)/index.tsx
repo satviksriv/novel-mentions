@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme';
@@ -24,15 +24,20 @@ export default function Library() {
           { id: 'perks', label: 'The Perks of Being a Wallflower' },
           { id: 'gatsby', label: 'The Great Gatsby' },
         ].map((b) => (
-          <Link
-            key={b.id}
-            href={`/book/${b.id}`}
-            style={[
-              styles.card,
-              { backgroundColor: t.color.surface, borderColor: t.color.border, borderRadius: t.radius.card },
-            ]}
-          >
-            <Text style={[t.type.cardTitle, { color: t.color.text }]}>{b.label}</Text>
+          <Link key={b.id} href={`/book/${b.id}`} asChild>
+            <Pressable
+              style={({ pressed }) => [
+                styles.card,
+                {
+                  backgroundColor: t.color.surface,
+                  borderColor: t.color.border,
+                  borderRadius: t.radius.card,
+                  opacity: pressed ? 0.6 : 1,
+                },
+              ]}
+            >
+              <Text style={[t.type.cardTitle, { color: t.color.text }]}>{b.label}</Text>
+            </Pressable>
           </Link>
         ))}
       </View>
