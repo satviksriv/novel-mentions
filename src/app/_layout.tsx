@@ -9,13 +9,13 @@ import { Newsreader_400Regular_Italic } from '@expo-google-fonts/newsreader/400R
 import { Newsreader_500Medium } from '@expo-google-fonts/newsreader/500Medium';
 import { Newsreader_600SemiBold } from '@expo-google-fonts/newsreader/600SemiBold';
 import { Newsreader_600SemiBold_Italic } from '@expo-google-fonts/newsreader/600SemiBold_Italic';
-import { useFonts } from 'expo-font';
 import {
   DarkTheme,
   DefaultTheme,
-  Stack,
   ThemeProvider as NavThemeProvider,
-} from 'expo-router';
+} from '@react-navigation/native';
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';

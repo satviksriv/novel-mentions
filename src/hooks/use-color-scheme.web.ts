@@ -8,7 +8,6 @@ export function useColorScheme() {
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration flag; web static rendering needs the client to re-evaluate the scheme after mount.
     setHasHydrated(true);
   }, []);
 

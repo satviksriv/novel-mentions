@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state — read before doing anything
 
-The app **scaffold is in place** (issue #3): an Expo (SDK 57, managed) + TypeScript + expo-router project rooted in `src/`, with the theme/token layer and a two-tab navigation shell. Feature screens (issues #4–#15) build on top of it.
+The app **scaffold is in place** (issue #3): an Expo (SDK 54, managed) + TypeScript + expo-router project rooted in `src/`, with the theme/token layer and a two-tab navigation shell. Feature screens (issues #4–#15) build on top of it.
+
+> **SDK 54, not latest**: the project targets Expo SDK 54 because that's what the released Expo Go supports on the test iPhone. Do not bump the SDK (via `create-expo-app` upgrades or `expo install --fix` to a newer major) unless Expo Go on the device supports it — a newer SDK makes the app unloadable in Expo Go, which is the Phase 1 dev loop.
 
 **Stack is decided** (issue #1, July 2026): **React Native + Expo** — managed workflow, TypeScript, expo-router. Hard constraint driving it: development happens on a Windows machine with an iPhone 16 as the test device (no local iOS builds; Expo Go is the dev loop). **Stay Expo Go-compatible for all of Phase 1**: only Expo-bundled or pure-JS modules, added via `npx expo install`; do not introduce libraries requiring custom native code without flagging that this forces a switch to EAS development builds.
 
