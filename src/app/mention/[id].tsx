@@ -17,6 +17,7 @@ import {
 import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import type { Book, Mention, UserNote } from '@/domain';
+import { MentionSheet } from '@/components/MentionSheet';
 import { useAsync } from '@/hooks/use-async';
 import { useRepositories } from '@/repositories';
 import { useBookPalette, useTheme } from '@/theme';
@@ -105,6 +106,7 @@ function MentionDetailLoaded({
 
   // null = sheet closed; { note } present = edit; { note: undefined } = add.
   const [sheet, setSheet] = useState<{ note?: UserNote } | null>(null);
+  const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const isOwn = mention.source === 'user';
@@ -159,9 +161,7 @@ function MentionDetailLoaded({
     ]);
   };
 
-  const editMention = () => {
-    // TODO(#9): present the shared Log/edit sheet pre-filled with this mention.
-  };
+  const editMention = () => setEditing(true);
 
   return (
     <View style={[styles.fill, { backgroundColor: t.color.bg }]}>
@@ -320,6 +320,18 @@ function MentionDetailLoaded({
           initial={sheet.note?.body}
           onSave={saveNote}
           onClose={() => setSheet(null)}
+        />
+      )}
+
+      {editing && (
+        <MentionSheet
+          bookId={book.id}
+          initial={mention}
+          onClose={() => setEditing(false)}
+          onSaved={() => {
+            setEditing(false);
+            reload();
+          }}
         />
       )}
     </View>

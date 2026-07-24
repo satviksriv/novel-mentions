@@ -1,11 +1,12 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import { BookCover } from '@/components/BookCover';
 import { FilterChip } from '@/components/Chips';
+import { MentionSheet } from '@/components/MentionSheet';
 import type { Book, Mention, MentionKind } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
 import { useRepositories } from '@/repositories';
@@ -21,12 +22,30 @@ export default function BookDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const repos = useRepositories();
 
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = useCallback(() => setReloadKey((k) => k + 1), []);
+
+  // Refetch when the screen regains focus (e.g. returning after deleting or
+  // editing a mention on the detail screen), but skip the initial focus since
+  // the first load already runs below. Without this the list shows stale data
+  // until the screen re-mounts.
+  const firstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (firstFocus.current) {
+        firstFocus.current = false;
+        return;
+      }
+      reload();
+    }, [reload]),
+  );
+
   const { data, loading, error } = useAsync(async () => {
     const book = await repos.books.getById(id);
     if (!book) return { book: undefined, mentions: [] as Mention[] };
     const mentions = await repos.mentions.forBook(id);
     return { book, mentions };
-  }, [repos, id]);
+  }, [repos, id, reloadKey]);
 
   if (loading) {
     return (
@@ -40,32 +59,33 @@ export default function BookDetail() {
     return <NotFound message={error ? "Couldn't load this book." : 'Book not found.'} />;
   }
 
-  return <BookDetailLoaded book={data.book} mentions={data.mentions} insets={insets} />;
+  return <BookDetailLoaded book={data.book} mentions={data.mentions} insets={insets} reload={reload} />;
 }
 
 function BookDetailLoaded({
   book,
   mentions,
   insets,
+  reload,
 }: {
   book: Book;
   mentions: Mention[];
   insets: EdgeInsets;
+  reload: () => void;
 }) {
   const t = useTheme();
   const router = useRouter();
   const palette = useBookPalette(book.palette);
 
   const [filter, setFilter] = useState<Filter>('all');
+  const [logging, setLogging] = useState(false);
   const filterKinds = useMemo(() => deriveFilterKinds(mentions), [mentions]);
   const groups = useMemo(() => {
     const visible = filter === 'all' ? mentions : mentions.filter((m) => m.kind === filter);
     return groupByChapter(visible);
   }, [mentions, filter]);
 
-  const handleLogMention = () => {
-    // TODO(#9): present the Log-a-mention sheet (kind defaults to the active filter).
-  };
+  const handleLogMention = () => setLogging(true);
 
   return (
     <View style={[styles.fill, { backgroundColor: t.color.bg }]}>
@@ -167,6 +187,18 @@ function BookDetailLoaded({
       >
         <Ionicons name="add" size={30} color={palette.onHeader} />
       </Pressable>
+
+      {logging && (
+        <MentionSheet
+          bookId={book.id}
+          defaultKind={filter === 'all' ? undefined : filter}
+          onClose={() => setLogging(false)}
+          onSaved={() => {
+            setLogging(false);
+            reload();
+          }}
+        />
+      )}
     </View>
   );
 }
