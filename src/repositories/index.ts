@@ -14,3 +14,4 @@ export {
 export { NoteRepository, type DraftNote } from './note-repository';
 export type { RepoDeps } from './deps';
 export { createRepositories, type Repositories } from './create';
+export { RepositoriesProvider, useRepositories } from './context';

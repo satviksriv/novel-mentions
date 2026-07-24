@@ -140,6 +140,16 @@ export const TYPE = {
   excerpt: { fontFamily: FONT_FAMILY.serifItalic, fontStyle: 'italic', fontSize: 18.5, lineHeight: 27 },
   /** Note body (serif italic). */
   note: { fontFamily: FONT_FAMILY.serifItalic, fontStyle: 'italic', fontSize: 14.5, lineHeight: 21 },
+  /** Title lettered onto a placeholder cover (serif, white on the gradient). */
+  coverTitle: { fontFamily: FONT_FAMILY.serifSemiBold, fontSize: 13, lineHeight: 15 },
+  /** Author lettered onto a placeholder cover (uppercase, tracked). */
+  coverAuthor: {
+    fontFamily: FONT_FAMILY.sansBold,
+    fontSize: 8.5,
+    lineHeight: 11,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
   /** Card / row title (sans). */
   rowTitle: { fontFamily: FONT_FAMILY.sansSemiBold, fontSize: 15, lineHeight: 20 },
   /** Body copy. */
