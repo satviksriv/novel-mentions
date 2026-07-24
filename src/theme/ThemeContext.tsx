@@ -4,9 +4,9 @@
  */
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
+import type { BookPaletteSource } from '@/domain';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { resolveBookPalette, resolveTheme, type BookPalette, type Theme } from './theme';
-import type { BookPaletteSource } from './tokens';
 
 const ThemeContext = createContext<Theme>(resolveTheme('light'));
 

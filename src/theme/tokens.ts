@@ -11,22 +11,17 @@
  */
 import type { TextStyle } from 'react-native';
 
-export type ColorScheme = 'light' | 'dark';
+// The mention vocabularies and the per-book palette shape are owned by the
+// domain layer (their single source of truth); the theme keys its colour tables
+// to them. Consumers import these types from '@/domain' directly — the theme
+// only uses them internally here. (Domain owns the *stored* palette shape as
+// BookPaletteSource; theme.ts owns the resolved, scheme-flattened BookPalette.)
+import type { BookPaletteSource, MentionKind, MentionStatus, ModeValue } from '@/domain';
 
-/** A value that differs between light and dark mode. */
-export type ModeValue<T> = { readonly light: T; readonly dark: T };
+export type ColorScheme = 'light' | 'dark';
 
 /** A foreground (solid) + background (soft) colour pair, per mode. */
 export type ColorPair = { readonly solid: ModeValue<string>; readonly soft: ModeValue<string> };
-
-/** The six fixed, app-wide mention kinds. `place` is a real 6th kind, not a relabel of `other`. */
-export type MentionKind = 'song' | 'movie' | 'quote' | 'book' | 'place' | 'other';
-
-/**
- * Mention lifecycle status. The domain value is `pendingReview` (badge copy
- * stays "Pending"); see ARCHITECTURE.md and the handoff Addenda reconciliation.
- */
-export type MentionStatus = 'personal' | 'pendingReview' | 'published' | 'rejected';
 
 // ---------------------------------------------------------------------------
 // Neutrals (Light / Dark)
@@ -79,15 +74,6 @@ export const STATUS_COLORS = {
 // Curated books carry explicit hexes in seed JSON (issue #4/#5); these two are
 // the handoff samples and document the shape resolveBookPalette() expects.
 // ---------------------------------------------------------------------------
-export interface BookPaletteSource {
-  /** header-bg / chip-active / fab. */
-  readonly primary: ModeValue<string>;
-  /** primary at ~8% (light) / ~18% (dark); "Yours" badge and tinted surfaces. */
-  readonly softTint: ModeValue<string>;
-  /** One gradient per book (160deg), used identically on card + book-detail cover. */
-  readonly coverGradient: readonly [string, string];
-}
-
 export const CURATED_BOOK_PALETTES = {
   /** The Perks of Being a Wallflower — mixtape pink. */
   perks: {

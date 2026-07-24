@@ -2,6 +2,8 @@
  * Theme resolution — turns the mode-dependent {light,dark} tokens into a flat,
  * scheme-resolved Theme that screens consume via useTheme().
  */
+import type { BookPaletteSource, MentionKind, MentionStatus, ModeValue } from '@/domain';
+
 import {
   FONT_FAMILY,
   KIND_COLORS,
@@ -11,11 +13,7 @@ import {
   SPACING,
   STATUS_COLORS,
   TYPE,
-  type BookPaletteSource,
   type ColorScheme,
-  type MentionKind,
-  type MentionStatus,
-  type ModeValue,
 } from './tokens';
 
 type ResolvedPair = { readonly solid: string; readonly soft: string };
