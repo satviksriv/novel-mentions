@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state — read before doing anything
 
-The app **scaffold is in place** (issue #3): an Expo (SDK 54, managed) + TypeScript + expo-router project rooted in `src/`, with the theme/token layer and a two-tab navigation shell. Feature screens (issues #4–#15) build on top of it.
+The app is **well into Phase 1**. In place: the scaffold (#3 — Expo SDK 54 managed + TypeScript + expo-router, rooted in `src/`, theme/token layer, two-tab shell), the domain models + seed JSON schema (#4), seed content for the two MVP books (#20), the repository + local-persistence layer (#22), and the core screens — Library + Book detail (#7), Mention detail + notes (#8), and the log-a-mention sheet + My stuff screen (#9). **Remaining Phase 1 features** — GitHub issues are the live tracker: add-a-book (#12), the `place` kind (#13), library search (#14), book-level notes (#15), and logging a mention from My stuff (#27). Build new features on top of the existing layers described below; keep this paragraph roughly current as issues close.
 
 > **SDK 54, not latest**: the project targets Expo SDK 54 because that's what the released Expo Go supports on the test iPhone. Do not bump the SDK (via `create-expo-app` upgrades or `expo install --fix` to a newer major) unless Expo Go on the device supports it — a newer SDK makes the app unloadable in Expo Go, which is the Phase 1 dev loop.
 
@@ -23,13 +23,19 @@ Commands:
 - `npm run ios` / `npm run android` / `npm run web` — start targeting a platform.
 - `npm run typecheck` — `tsc --noEmit`.
 - `npm run lint` — `expo lint` (ESLint flat config, `eslint-config-expo`).
+- `npm test` — run the Jest suite (`jest-expo` preset).
 
-There is no test runner yet — add one (and its command here) when the first testable logic lands.
+Tests live in `__tests__/` folders beside the code they cover (`*.test.ts(x)`) and lean on pure logic + in-memory test doubles (an `InMemoryLocalStore`, deterministic `RepoDeps`) — nothing touches AsyncStorage or the device. Domain, repositories, and UI helpers are covered; screens are not (no React renderer wired into the suite yet).
 
 ### Project structure
 - `src/app/` — expo-router routes. `(tabs)/` holds the tab roots (`index` = Library, `my-stuff` = My stuff); `book/[id]` and `mention/[id]` are pushed detail screens (sibling stack routes, so the tab bar hides on push). `_layout.tsx` loads fonts, gates the splash, and wires the theme.
 - `src/theme/` — the token layer. `tokens.ts` holds the handoff values (mode-dependent ones as `{light,dark}`); `resolveTheme`/`resolveBookPalette` flatten them for the active scheme; consume via `useTheme()` / `useBookPalette()`. **Never hard-code hexes, sizes, or fonts in screens — pull from the theme.**
-- `src/hooks/` — small shared hooks (e.g. `use-color-scheme`).
+- `src/domain/` — Zod-validated models (`Book` / `Mention` / `UserNote`), enums, the mention lifecycle state machine (`lifecycle.ts`), per-book palette derivation, and seed-shape parse/serialize. Pure — no React, no I/O.
+- `src/data/` — the three data sources behind the repositories: `seed/` (bundled JSON + `SeedSource`), `local/` (a `LocalStore` interface with AsyncStorage and in-memory implementations), `remote/` (the no-op `RemoteContentSource` stub for Phase 2).
+- `src/repositories/` — **the only layer the UI talks to**; merges seed + local per the architecture. `create.ts` / `context.tsx` wire them; screens consume via `useRepositories()`. New user-data reads/writes go here, not in screens.
+- `src/components/` — shared UI (`BookCover`, `Chips`, `MentionSheet` — the log/edit bottom-sheet).
+- `src/ui/` — pure presentation helpers: kind icons/labels (`kind.ts`), status badge copy (`status.ts`), and list `derive` helpers. No theme/hooks, so they're unit-testable.
+- `src/hooks/` — small shared hooks (`use-color-scheme`, `use-async`).
 - Path alias `@/*` → `src/*`.
 - Fonts: Newsreader + Hanken Grotesk via `@expo-google-fonts/*`, imported by **per-weight subpath** (not the package root) so Metro bundles only the faces in use; likewise import icons as `@expo/vector-icons/Ionicons`, not from the package root.
 
