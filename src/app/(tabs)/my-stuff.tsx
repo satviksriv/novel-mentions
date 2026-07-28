@@ -17,6 +17,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BookCover } from '@/components/BookCover';
+import { BookPickerSheet } from '@/components/BookPickerSheet';
 import { MentionSheet } from '@/components/MentionSheet';
 import type { Book, Mention, UserNote } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
@@ -41,6 +42,9 @@ export default function MyStuff() {
 
   const [tab, setTab] = useState<Tab>('mentions');
   const [resubmit, setResubmit] = useState<Mention | null>(null);
+  // Log-a-mention from here (#27): pick a book, then open MentionSheet for it.
+  const [picking, setPicking] = useState(false);
+  const [logBookId, setLogBookId] = useState<string | null>(null);
 
   const [reloadKey, setReloadKey] = useState(0);
   const reload = useCallback(() => setReloadKey((k) => k + 1), []);
@@ -121,7 +125,7 @@ export default function MyStuff() {
         >
           {tab === 'mentions' ? (
             data.mentions.length === 0 ? (
-              <MentionsEmpty />
+              <MentionsEmpty onLog={() => setPicking(true)} />
             ) : (
               data.mentions.map((m) => (
                 <MentionRow
@@ -154,6 +158,27 @@ export default function MyStuff() {
           onClose={() => setResubmit(null)}
           onSaved={() => {
             setResubmit(null);
+            reload();
+          }}
+        />
+      )}
+
+      {picking && (
+        <BookPickerSheet
+          onClose={() => setPicking(false)}
+          onPick={(bookId) => {
+            setPicking(false);
+            setLogBookId(bookId);
+          }}
+        />
+      )}
+
+      {logBookId && (
+        <MentionSheet
+          bookId={logBookId}
+          onClose={() => setLogBookId(null)}
+          onSaved={() => {
+            setLogBookId(null);
             reload();
           }}
         />
@@ -297,16 +322,15 @@ function MiniCoverFallback() {
   return <View style={[styles.miniFallback, { backgroundColor: t.color.surface2, borderRadius: 6 }]} />;
 }
 
-function MentionsEmpty() {
-  const router = useRouter();
+function MentionsEmpty({ onLog }: { onLog: () => void }) {
   return (
     <EmptyShell
       icon="sparkles-outline"
       title="Spotted a mention we missed?"
       body="Log the songs, films, quotes and places an author reaches for. We'll fact-check each one, then publish it for other readers."
       cta="Log a mention"
-      // No book is selected here, so send the reader to their library to pick one.
-      onCta={() => router.navigate('/')}
+      // No book is selected here — the CTA opens a book-picker first (#27).
+      onCta={onLog}
     />
   );
 }
