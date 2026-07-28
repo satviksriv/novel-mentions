@@ -40,6 +40,16 @@ export class NoteRepository {
     return notes.filter((n) => n.mentionId === mentionId);
   }
 
+  /**
+   * Every note the reader has written, across all books, newest-first — the
+   * read path for the My stuff "My notes" tab (which joins each to its book and,
+   * for mention-level notes, its mention).
+   */
+  async allUserNotes(): Promise<UserNote[]> {
+    const notes = await this.local.getUserNotes();
+    return [...notes].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
   async create(draft: DraftNote): Promise<UserNote> {
     const now = this.deps.now();
     const record = parseUserNote({

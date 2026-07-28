@@ -62,6 +62,16 @@ export class MentionRepository {
     return [...this.seed.mentionsForBook(bookId), ...mine].sort(byReadingOrder);
   }
 
+  /**
+   * Every mention the reader has logged, across all books, newest-first — the
+   * read path for the My stuff screen (which joins each to its book). Mentions
+   * carry no timestamp, so "newest" is store order (create appends) reversed.
+   */
+  async allUserMentions(): Promise<Mention[]> {
+    const mentions = await this.local.getUserMentions();
+    return [...mentions].reverse();
+  }
+
   /** A single mention by id, searching the reader's mentions then seed content. */
   async getById(id: string): Promise<Mention | undefined> {
     const userMentions = await this.local.getUserMentions();
