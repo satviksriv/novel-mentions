@@ -122,40 +122,45 @@ function BookCardLink({ entry }: { entry: LibraryEntry }) {
   const t = useTheme();
   const { book, counts } = entry;
 
+  // Row layout + card chrome live on this inner View, not on the Pressable:
+  // expo-router's `Link asChild` doesn't reliably apply a Pressable's
+  // function-returned style array, which dropped `styles.card` (flexDirection,
+  // background, border) and made the card collapse to a column (issue #29).
   return (
     <Link href={`/book/${book.id}`} asChild>
-      <Pressable
-        style={({ pressed }) => [
-          styles.card,
-          {
-            backgroundColor: t.color.surface,
-            borderColor: t.color.border,
-            borderRadius: t.radius.card,
-            boxShadow: t.shadow.card,
-            opacity: pressed ? 0.85 : 1,
-          },
-        ]}
-      >
-        <BookCover book={book} size="card" />
-        <View style={styles.cardBody}>
-          <Text style={[t.type.cardTitle, { color: t.color.text }]} numberOfLines={2}>
-            {book.title}
-          </Text>
-          <Text style={[t.type.secondary, { color: t.color.text2 }]} numberOfLines={1}>
-            {book.author} · {formatWorkType(book.workType)}
-          </Text>
+      <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: t.color.surface,
+              borderColor: t.color.border,
+              borderRadius: t.radius.card,
+              boxShadow: t.shadow.card,
+            },
+          ]}
+        >
+          <BookCover book={book} size="card" />
+          <View style={styles.cardBody}>
+            <Text style={[t.type.cardTitle, { color: t.color.text }]} numberOfLines={2}>
+              {book.title}
+            </Text>
+            <Text style={[t.type.secondary, { color: t.color.text2 }]} numberOfLines={1}>
+              {book.author} · {formatWorkType(book.workType)}
+            </Text>
 
-          {counts.length > 0 ? (
-            <View style={styles.chipRow}>
-              {counts.map((c) => (
-                <CountChip key={c.kind} kind={c.kind} count={c.count} />
-              ))}
-            </View>
-          ) : (
-            <View style={[styles.emptyPill, { backgroundColor: t.color.surface2 }]}>
-              <Text style={[t.type.secondary, { color: t.color.text3 }]}>No mentions yet</Text>
-            </View>
-          )}
+            {counts.length > 0 ? (
+              <View style={styles.chipRow}>
+                {counts.map((c) => (
+                  <CountChip key={c.kind} kind={c.kind} count={c.count} />
+                ))}
+              </View>
+            ) : (
+              <View style={[styles.emptyPill, { backgroundColor: t.color.surface2 }]}>
+                <Text style={[t.type.secondary, { color: t.color.text3 }]}>No mentions yet</Text>
+              </View>
+            )}
+          </View>
         </View>
       </Pressable>
     </Link>
