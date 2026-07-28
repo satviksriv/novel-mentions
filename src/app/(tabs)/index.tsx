@@ -405,10 +405,27 @@ function NoMatches({ query, onAddBook }: { query: string; onAddBook: () => void 
       >
         <Text style={{ fontFamily: t.font.sansBold, fontSize: 13.5, color: t.color.bg }}>Add a book</Text>
       </Pressable>
-      {/* Secondary CTA. Until a global log-a-mention picker exists (#27), point
-          the reader at My stuff, where the "log a mention" flow lives. */}
-      <Pressable onPress={() => router.navigate('/my-stuff')} hitSlop={8}>
-        <Text style={[t.type.rowTitle, { color: t.color.text2 }]}>or log a mention you spotted</Text>
+      {/* Secondary CTA — the underlined, accent-ink span reads as tappable next
+          to the filled primary. Until a global log-a-mention picker exists (#27),
+          point the reader at My stuff, where the "log a mention" flow lives. */}
+      <Pressable
+        onPress={() => router.navigate('/my-stuff')}
+        hitSlop={8}
+        accessibilityRole="link"
+        style={({ pressed }) => [styles.noMatchLink, { opacity: pressed ? 0.6 : 1 }]}
+      >
+        <Text style={[t.type.rowTitle, { color: t.color.text3 }]}>
+          or{' '}
+          <Text
+            style={{
+              color: t.color.accentInk,
+              fontFamily: t.font.sansSemiBold,
+              textDecorationLine: 'underline',
+            }}
+          >
+            log a mention you spotted
+          </Text>
+        </Text>
       </Pressable>
     </View>
   );
@@ -437,6 +454,7 @@ const styles = StyleSheet.create({
   noMatch: { alignItems: 'center', gap: 12, paddingTop: 40, paddingHorizontal: 12 },
   noMatchTile: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center' },
   noMatchCta: { marginTop: 4, paddingHorizontal: 22, paddingVertical: 13 },
+  noMatchLink: { paddingVertical: 4 },
   card: {
     flexDirection: 'row',
     gap: 15,
