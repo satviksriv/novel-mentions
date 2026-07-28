@@ -10,6 +10,7 @@ import * as Crypto from 'expo-crypto';
 
 import { AsyncStorageLocalStore } from '@/data/local/async-storage-store';
 import type { LocalStore } from '@/data/local/local-store';
+import { OpenLibraryLookupSource } from '@/data/lookup/open-library-source';
 import { NoopRemoteContentSource } from '@/data/remote/remote-content-source';
 import { SeedSource } from '@/data/seed/source';
 
@@ -35,8 +36,9 @@ export function createRepositories(
 ): Repositories {
   const seed = new SeedSource();
   const remote = new NoopRemoteContentSource();
+  const lookup = new OpenLibraryLookupSource();
   return {
-    books: new BookRepository(seed, local),
+    books: new BookRepository(seed, local, lookup, deps),
     mentions: new MentionRepository(seed, local, remote, deps),
     notes: new NoteRepository(local, deps),
   };

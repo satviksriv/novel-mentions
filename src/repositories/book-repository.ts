@@ -4,14 +4,29 @@
  * `origin` field (seed vs user). The add-a-book *flow* is issue #12; this
  * repository provides the merge/read path and a persistence hook for it.
  */
-import { parseBook, type Book } from '@/domain';
+import { deriveBookPalette, parseBook, type Book, type WorkType } from '@/domain';
 import type { LocalStore } from '@/data/local/local-store';
+import type { BookLookupResult, BookLookupSource } from '@/data/lookup/book-lookup-source';
 import type { SeedSource } from '@/data/seed/source';
+
+import type { RepoDeps } from './deps';
+
+/** The authoring fields for a user-added book; id, palette and origin are filled by addBook(). */
+export interface AddBookDraft {
+  title: string;
+  author: string;
+  workType: WorkType;
+  /** Remote cover URL (or asset ref); null when the book has no cover. */
+  coverRef?: string | null;
+  synopsis?: string;
+}
 
 export class BookRepository {
   constructor(
     private readonly seed: SeedSource,
     private readonly local: LocalStore,
+    private readonly lookup: BookLookupSource,
+    private readonly deps: RepoDeps,
   ) {}
 
   /** Seed books first (bundled order), then the reader's added books. */
@@ -28,9 +43,40 @@ export class BookRepository {
   }
 
   /**
-   * Persist a user-added book (origin forced to `user`). Validates before
-   * writing. Used by the add-a-book flow (#12); here so merge reads have a
-   * write path to exercise.
+   * Search the public books provider (Open Library in MVP) for the add-a-book
+   * flow. Blank query ⇒ no results; network/HTTP errors propagate to the caller
+   * to render. The UI goes through here rather than the data source directly.
+   */
+  async searchBooks(query: string, opts?: { signal?: AbortSignal }): Promise<BookLookupResult[]> {
+    return this.lookup.search(query, opts);
+  }
+
+  /**
+   * Add a book to the reader's local library (#12). Mints the id, derives a
+   * deterministic per-book palette from the title+author (cover-pixel
+   * derivation isn't Expo Go-safe — see deriveBookPalette), forces
+   * `origin: 'user'`, validates, and persists. Community publishing is Phase 2.
+   */
+  async addBook(draft: AddBookDraft): Promise<Book> {
+    const record = parseBook({
+      id: this.deps.newId(),
+      title: draft.title,
+      author: draft.author,
+      workType: draft.workType,
+      synopsis: draft.synopsis ?? '',
+      coverRef: draft.coverRef ?? null,
+      palette: deriveBookPalette(`${draft.title}|${draft.author}`),
+      origin: 'user',
+    });
+    const books = await this.local.getUserBooks();
+    await this.local.saveUserBooks([...books, record]);
+    return record;
+  }
+
+  /**
+   * Persist a full user-added book (origin forced to `user`), upserting by id.
+   * Lower-level than addBook (caller supplies id + palette); retained for tests
+   * and any direct write path.
    */
   async saveUserBook(book: Book): Promise<Book> {
     const record = parseBook({ ...book, origin: 'user' });

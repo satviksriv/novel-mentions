@@ -5,6 +5,7 @@
  */
 export * from './enums';
 export * from './palette';
+export * from './derive-palette';
 export * from './book';
 export * from './mention';
 export * from './note';
