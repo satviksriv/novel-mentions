@@ -1,8 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Link } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AddBookSheet } from '@/components/AddBookSheet';
 import { BookCover } from '@/components/BookCover';
 import { CountChip } from '@/components/Chips';
 import type { Book } from '@/domain';
@@ -22,6 +24,23 @@ export default function Library() {
   const insets = useSafeAreaInsets();
   const repos = useRepositories();
 
+  const [adding, setAdding] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const reload = useCallback(() => setReloadKey((k) => k + 1), []);
+
+  // Refetch on re-focus so mention counts reflect logging done on other screens,
+  // skipping the initial focus (the first load runs below).
+  const firstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (firstFocus.current) {
+        firstFocus.current = false;
+        return;
+      }
+      reload();
+    }, [reload]),
+  );
+
   const { data, loading, error } = useAsync(async () => {
     const books = await repos.books.list();
     const entries: LibraryEntry[] = await Promise.all(
@@ -32,47 +51,70 @@ export default function Library() {
     );
     const totalMentions = entries.reduce((n, e) => n + e.total, 0);
     return { entries, subline: formatLibrarySubline(books.length, totalMentions) };
-  }, [repos]);
+  }, [repos, reloadKey]);
 
   return (
-    <ScrollView
-      style={{ backgroundColor: t.color.bg }}
-      contentContainerStyle={{
-        paddingHorizontal: t.spacing.screen,
-        paddingTop: insets.top + t.spacing.lg,
-        paddingBottom: insets.bottom + t.spacing['2xl'],
-        gap: t.spacing.lg,
-      }}
-    >
-      <View style={{ gap: t.spacing.xs }}>
-        <Text style={[t.type.screenTitle, { color: t.color.text }]}>Library</Text>
-        <Text style={[t.type.subline, { color: t.color.text2 }]}>
-          {data?.subline ?? ' '}
-        </Text>
-      </View>
+    <>
+      <ScrollView
+        style={{ backgroundColor: t.color.bg }}
+        contentContainerStyle={{
+          paddingHorizontal: t.spacing.screen,
+          paddingTop: insets.top + t.spacing.lg,
+          paddingBottom: insets.bottom + t.spacing['2xl'],
+          gap: t.spacing.lg,
+        }}
+      >
+        <View style={styles.titleRow}>
+          <View style={{ flex: 1, gap: t.spacing.xs }}>
+            <Text style={[t.type.screenTitle, { color: t.color.text }]}>Library</Text>
+            <Text style={[t.type.subline, { color: t.color.text2 }]}>{data?.subline ?? ' '}</Text>
+          </View>
+          <Pressable
+            onPress={() => setAdding(true)}
+            hitSlop={8}
+            accessibilityLabel="Add a book"
+            style={({ pressed }) => [
+              styles.addBtn,
+              { backgroundColor: t.color.accentInk, borderRadius: t.radius.pill, opacity: pressed ? 0.85 : 1 },
+            ]}
+          >
+            <Ionicons name="add" size={22} color={t.color.bg} />
+          </Pressable>
+        </View>
 
-      {/* Search field — visual only; behaviour lands in issue #14. */}
-      <View style={[styles.search, { backgroundColor: t.color.surface2, borderRadius: 14 }]}>
-        <Ionicons name="search" size={18} color={t.color.text3} />
-        <Text style={{ fontFamily: t.font.sans, fontSize: 15, color: t.color.text3 }}>
-          Search books &amp; mentions
-        </Text>
-      </View>
+        {/* Search field — visual only; behaviour lands in issue #14. */}
+        <View style={[styles.search, { backgroundColor: t.color.surface2, borderRadius: 14 }]}>
+          <Ionicons name="search" size={18} color={t.color.text3} />
+          <Text style={{ fontFamily: t.font.sans, fontSize: 15, color: t.color.text3 }}>
+            Search books &amp; mentions
+          </Text>
+        </View>
 
-      {loading && <ActivityIndicator color={t.color.text3} style={{ marginTop: t.spacing.xl }} />}
+        {loading && <ActivityIndicator color={t.color.text3} style={{ marginTop: t.spacing.xl }} />}
 
-      {error && (
-        <Text style={[t.type.body, { color: t.status.rejected.solid }]}>
-          Couldn&apos;t load your library. Pull to retry.
-        </Text>
+        {error && (
+          <Text style={[t.type.body, { color: t.status.rejected.solid }]}>
+            Couldn&apos;t load your library. Pull to retry.
+          </Text>
+        )}
+
+        <View style={{ gap: t.spacing.md }}>
+          {data?.entries.map((entry) => (
+            <BookCardLink key={entry.book.id} entry={entry} />
+          ))}
+        </View>
+      </ScrollView>
+
+      {adding && (
+        <AddBookSheet
+          onClose={() => setAdding(false)}
+          onAdded={() => {
+            setAdding(false);
+            reload();
+          }}
+        />
       )}
-
-      <View style={{ gap: t.spacing.md }}>
-        {data?.entries.map((entry) => (
-          <BookCardLink key={entry.book.id} entry={entry} />
-        ))}
-      </View>
-    </ScrollView>
+    </>
   );
 }
 
@@ -121,6 +163,8 @@ function BookCardLink({ entry }: { entry: LibraryEntry }) {
 }
 
 const styles = StyleSheet.create({
+  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  addBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   search: {
     height: 44,
     flexDirection: 'row',
