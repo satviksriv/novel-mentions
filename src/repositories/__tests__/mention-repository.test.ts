@@ -76,6 +76,24 @@ describe('MentionRepository create / update / remove', () => {
   });
 });
 
+describe('MentionRepository.allUserMentions', () => {
+  it('lists the reader\'s own mentions across books, newest-first, excluding seed', async () => {
+    const { repo } = makeRepo();
+    const older = await repo.create(draftFor(gatsby.id, { title: 'Logged first' }));
+    const newer = await repo.create(draftFor(perks.id, { title: 'Logged second' }));
+
+    const all = await repo.allUserMentions();
+    expect(all.map((m) => m.id)).toEqual([newer.id, older.id]);
+    // Seed content is never included — only the reader's own logs.
+    expect(all).toHaveLength(2);
+  });
+
+  it('returns an empty list when the reader has logged nothing', async () => {
+    const { repo } = makeRepo();
+    expect(await repo.allUserMentions()).toEqual([]);
+  });
+});
+
 describe('MentionRepository.applyLifecycle', () => {
   it('walks personal → pendingReview → rejected → personal → pendingReview', async () => {
     const { repo, remote } = makeRepo();

@@ -52,4 +52,20 @@ describe('NoteRepository', () => {
     const { repo } = makeRepo();
     await expect(repo.create({ bookId: BOOK_ID, body: '' })).rejects.toThrow();
   });
+
+  it('lists every note across books, newest-first', async () => {
+    const { repo } = makeRepo();
+    const OTHER_BOOK = 'a0000000-0000-4000-8000-000000000002';
+    const first = await repo.create({ bookId: BOOK_ID, body: 'first' });
+    const second = await repo.create({ bookId: OTHER_BOOK, mentionId: MENTION_ID, body: 'second' });
+
+    const all = await repo.allUserNotes();
+    // Sorted by createdAt descending — the test clock advances, so second is newer.
+    expect(all.map((n) => n.id)).toEqual([second.id, first.id]);
+  });
+
+  it('returns an empty list when there are no notes', async () => {
+    const { repo } = makeRepo();
+    expect(await repo.allUserNotes()).toEqual([]);
+  });
 });
