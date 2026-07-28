@@ -83,6 +83,11 @@ export default function MyStuff() {
     return { bookById, mentions, notes, mentionTitles };
   }, [repos, reloadKey]);
 
+  // The persistent log-a-mention FAB shows on the My mentions tab once the list
+  // is non-empty (the empty state carries its own CTA). Drives both the button
+  // and the extra scroll clearance so the last row isn't hidden behind it.
+  const showFab = !!data && tab === 'mentions' && data.mentions.length > 0;
+
   return (
     <View style={[styles.fill, { backgroundColor: t.color.bg }]}>
       {/* Pinned header — title + tab bar. */}
@@ -119,7 +124,7 @@ export default function MyStuff() {
           contentContainerStyle={{
             paddingHorizontal: t.spacing.screen,
             paddingTop: t.spacing.md,
-            paddingBottom: insets.bottom + t.spacing['2xl'],
+            paddingBottom: insets.bottom + (showFab ? 96 : t.spacing['2xl']),
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -149,6 +154,29 @@ export default function MyStuff() {
             ))
           )}
         </ScrollView>
+      )}
+
+      {/* Persistent log-a-mention FAB (#39) — only on the My mentions tab, and
+          only when the list is non-empty (the empty state has its own CTA).
+          Book-agnostic here, so it uses the app-level accent ink rather than a
+          per-book palette. Opens the same book-picker → MentionSheet flow. */}
+      {showFab && (
+        <Pressable
+          onPress={() => setPicking(true)}
+          accessibilityLabel="Log a mention"
+          style={({ pressed }) => [
+            styles.fab,
+            {
+              backgroundColor: t.color.accentInk,
+              borderRadius: t.radius.fab,
+              bottom: insets.bottom + t.spacing.lg,
+              boxShadow: t.shadow.card,
+              opacity: pressed ? 0.85 : 1,
+            },
+          ]}
+        >
+          <Ionicons name="add" size={30} color={t.color.bg} />
+        </Pressable>
       )}
 
       {resubmit && (
@@ -408,4 +436,12 @@ const styles = StyleSheet.create({
   empty: { alignItems: 'center', gap: 12, paddingHorizontal: 12 },
   emptyTile: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center' },
   cta: { marginTop: 4, paddingHorizontal: 22, paddingVertical: 13 },
+  fab: {
+    position: 'absolute',
+    right: 24,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
