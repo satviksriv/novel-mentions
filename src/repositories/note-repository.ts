@@ -79,4 +79,17 @@ export class NoteRepository {
     const notes = await this.local.getUserNotes();
     await this.local.saveUserNotes(notes.filter((n) => n.id !== id));
   }
+
+  /**
+   * Delete every note for a book — whole-book and mention-level alike (each note
+   * carries bookId). The notes half of the book-removal cascade (#34); a no-op
+   * if the reader wrote none for this book.
+   */
+  async removeForBook(bookId: string): Promise<void> {
+    const notes = await this.local.getUserNotes();
+    const next = notes.filter((n) => n.bookId !== bookId);
+    if (next.length !== notes.length) {
+      await this.local.saveUserNotes(next);
+    }
+  }
 }

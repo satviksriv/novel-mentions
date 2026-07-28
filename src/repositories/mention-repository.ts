@@ -110,6 +110,19 @@ export class MentionRepository {
   }
 
   /**
+   * Delete every user mention for a book — the mentions half of the book-removal
+   * cascade (#34, coordinated in removeUserBookCascade). Seed mentions live in
+   * the bundle and are untouched; a no-op if the reader logged none here.
+   */
+  async removeForBook(bookId: string): Promise<void> {
+    const mentions = await this.local.getUserMentions();
+    const next = mentions.filter((m) => m.bookId !== bookId);
+    if (next.length !== mentions.length) {
+      await this.local.saveUserMentions(next);
+    }
+  }
+
+  /**
    * Apply a lifecycle transition (submit / approve / reject / revise) to a user
    * mention via the domain state machine, persisting the result. On `submit`
    * the mention is also handed to the remote source (a no-op in MVP).

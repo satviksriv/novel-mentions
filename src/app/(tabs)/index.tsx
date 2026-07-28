@@ -1,16 +1,18 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link, useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AddBookSheet } from '@/components/AddBookSheet';
 import { BookCover } from '@/components/BookCover';
 import { CountChip } from '@/components/Chips';
+import { confirmRemoveBook } from '@/components/confirm-remove-book';
 import type { Book } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
 import { useRepositories } from '@/repositories';
-import { useTheme } from '@/theme';
+import { useBookPalette, useTheme } from '@/theme';
 import { deriveKindCounts, formatLibrarySubline, formatWorkType, type KindCount } from '@/ui/derive';
 
 interface LibraryEntry {
@@ -27,6 +29,22 @@ export default function Library() {
   const [adding, setAdding] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const reload = useCallback(() => setReloadKey((k) => k + 1), []);
+
+  // Remove a user-added book (#34): confirm, cascade-delete via the coordinated
+  // repository path, then reload so the card disappears.
+  const handleRemove = useCallback(
+    (book: Book) => {
+      confirmRemoveBook(book, async () => {
+        try {
+          await repos.removeUserBook(book.id);
+          reload();
+        } catch {
+          Alert.alert('Couldn’t remove', 'Something went wrong removing this book. Please try again.');
+        }
+      });
+    },
+    [repos, reload],
+  );
 
   // Refetch on re-focus so mention counts reflect logging done on other screens,
   // skipping the initial focus (the first load runs below).
@@ -100,7 +118,7 @@ export default function Library() {
 
         <View style={{ gap: t.spacing.md }}>
           {data?.entries.map((entry) => (
-            <BookCardLink key={entry.book.id} entry={entry} />
+            <BookCardLink key={entry.book.id} entry={entry} onRemove={handleRemove} />
           ))}
         </View>
       </ScrollView>
@@ -118,15 +136,23 @@ export default function Library() {
   );
 }
 
-function BookCardLink({ entry }: { entry: LibraryEntry }) {
+function BookCardLink({
+  entry,
+  onRemove,
+}: {
+  entry: LibraryEntry;
+  onRemove: (book: Book) => void;
+}) {
   const t = useTheme();
+  const palette = useBookPalette(entry.book.palette);
+  const swipeRef = useRef<Swipeable>(null);
   const { book, counts } = entry;
 
   // Row layout + card chrome live on this inner View, not on the Pressable:
   // expo-router's `Link asChild` doesn't reliably apply a Pressable's
   // function-returned style array, which dropped `styles.card` (flexDirection,
   // background, border) and made the card collapse to a column (issue #29).
-  return (
+  const card = (
     <Link href={`/book/${book.id}`} asChild>
       <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
         <View
@@ -165,6 +191,41 @@ function BookCardLink({ entry }: { entry: LibraryEntry }) {
       </Pressable>
     </Link>
   );
+
+  // Seed books are bundled and not removable — only user-added cards get the
+  // swipe action (#34). Swiping reveals a Remove button; tapping it confirms
+  // (reveal-then-confirm), then cascade-deletes.
+  if (book.origin !== 'user') return card;
+
+  const renderRightActions = () => (
+    <Pressable
+      onPress={() => {
+        swipeRef.current?.close();
+        onRemove(book);
+      }}
+      accessibilityLabel={`Remove ${book.title}`}
+      style={({ pressed }) => [
+        styles.removeAction,
+        { backgroundColor: t.status.rejected.solid, borderRadius: t.radius.card, opacity: pressed ? 0.85 : 1 },
+      ]}
+    >
+      <Ionicons name="trash-outline" size={20} color={palette.onHeader} />
+      <Text style={{ fontFamily: t.font.sansSemiBold, fontSize: 12, color: palette.onHeader }}>
+        Remove
+      </Text>
+    </Pressable>
+  );
+
+  return (
+    <Swipeable
+      ref={swipeRef}
+      renderRightActions={renderRightActions}
+      overshootRight={false}
+      rightThreshold={40}
+    >
+      {card}
+    </Swipeable>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -199,5 +260,12 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
     marginTop: 2,
+  },
+  removeAction: {
+    width: 92,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginLeft: 10,
   },
 });

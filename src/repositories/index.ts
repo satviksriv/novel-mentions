@@ -12,6 +12,7 @@ export {
   type MentionPatch,
 } from './mention-repository';
 export { NoteRepository, type DraftNote } from './note-repository';
+export { removeUserBookCascade, type CascadeRepos } from './cascade';
 export type { RepoDeps } from './deps';
 export { createRepositories, type Repositories } from './create';
 export { RepositoriesProvider, useRepositories } from './context';

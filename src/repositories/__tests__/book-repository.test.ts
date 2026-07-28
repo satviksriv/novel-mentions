@@ -101,4 +101,17 @@ describe('BookRepository', () => {
       repo.addBook({ title: '', author: 'Nobody', workType: 'fiction' }),
     ).rejects.toThrow();
   });
+
+  it('removeUserBook deletes a user book but rejects seed and unknown ids', async () => {
+    const local = new InMemoryLocalStore({ books: [USER_BOOK] });
+    const repo = makeRepo(local);
+
+    await repo.removeUserBook(USER_BOOK.id);
+    expect(await local.getUserBooks()).toHaveLength(0);
+    expect(await repo.getById(USER_BOOK.id)).toBeUndefined();
+
+    // Seed books are bundled, not user-added — not removable here.
+    await expect(repo.removeUserBook(seedBook.id)).rejects.toThrow();
+    await expect(repo.removeUserBook('00000000-0000-4000-8000-0000000000ff')).rejects.toThrow();
+  });
 });

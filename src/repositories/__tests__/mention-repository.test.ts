@@ -74,6 +74,17 @@ describe('MentionRepository create / update / remove', () => {
     await repo.remove(created.id);
     expect(await local.getUserMentions()).toHaveLength(0);
   });
+
+  it('removeForBook deletes only the given book\'s user mentions', async () => {
+    const { repo, local } = makeRepo();
+    await repo.create(draftFor(gatsby.id, { title: 'g1' }));
+    await repo.create(draftFor(gatsby.id, { title: 'g2' }));
+    const keep = await repo.create(draftFor(perks.id, { title: 'p1' }));
+
+    await repo.removeForBook(gatsby.id);
+
+    expect((await local.getUserMentions()).map((m) => m.id)).toEqual([keep.id]);
+  });
 });
 
 describe('MentionRepository.allUserMentions', () => {

@@ -15,6 +15,7 @@ import { NoopRemoteContentSource } from '@/data/remote/remote-content-source';
 import { SeedSource } from '@/data/seed/source';
 
 import { BookRepository } from './book-repository';
+import { removeUserBookCascade } from './cascade';
 import type { RepoDeps } from './deps';
 import { MentionRepository } from './mention-repository';
 import { NoteRepository } from './note-repository';
@@ -23,6 +24,11 @@ export interface Repositories {
   books: BookRepository;
   mentions: MentionRepository;
   notes: NoteRepository;
+  /**
+   * Remove a user-added book and cascade-delete the reader's mentions and notes
+   * for it (#34) — the coordinated path across the three repositories above.
+   */
+  removeUserBook(bookId: string): Promise<void>;
 }
 
 const realDeps: RepoDeps = {
@@ -37,9 +43,15 @@ export function createRepositories(
   const seed = new SeedSource();
   const remote = new NoopRemoteContentSource();
   const lookup = new OpenLibraryLookupSource();
+
+  const books = new BookRepository(seed, local, lookup, deps);
+  const mentions = new MentionRepository(seed, local, remote, deps);
+  const notes = new NoteRepository(local, deps);
+
   return {
-    books: new BookRepository(seed, local, lookup, deps),
-    mentions: new MentionRepository(seed, local, remote, deps),
-    notes: new NoteRepository(local, deps),
+    books,
+    mentions,
+    notes,
+    removeUserBook: (bookId) => removeUserBookCascade({ books, mentions, notes }, bookId),
   };
 }
