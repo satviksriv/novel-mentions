@@ -224,40 +224,41 @@ function MentionRow({ mention, palette }: { mention: Mention; palette: BookPalet
     .filter(Boolean)
     .join(' · ');
 
+  // Row layout + separator live on this inner View, not on the Pressable:
+  // expo-router's `Link asChild` doesn't reliably apply a Pressable's
+  // function-returned style array, which dropped `styles.row` (flexDirection,
+  // gap, bottom border) and stacked the row vertically (issue #32, same as #29).
   return (
     <Link href={`/mention/${mention.id}`} asChild>
-      <Pressable
-        style={({ pressed }) => [
-          styles.row,
-          { borderBottomColor: t.color.line, opacity: pressed ? 0.6 : 1 },
-        ]}
-      >
-        <View style={[styles.tile, { backgroundColor: kind.soft, borderRadius: t.radius.tile }]}>
-          <Ionicons name={KIND_META[mention.kind].icon} size={18} color={kind.solid} />
-        </View>
-
-        <View style={styles.rowBody}>
-          <View style={styles.rowTitleLine}>
-            <Text style={[t.type.rowTitle, { color: t.color.text }]} numberOfLines={1}>
-              {mention.title}
-            </Text>
-            {isOwn && (
-              <View style={[styles.yours, { backgroundColor: palette.softTint }]}>
-                <Text style={[t.type.label, { color: palette.primary, fontSize: 10 }]}>Yours</Text>
-              </View>
-            )}
+      <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+        <View style={[styles.row, { borderBottomColor: t.color.line }]}>
+          <View style={[styles.tile, { backgroundColor: kind.soft, borderRadius: t.radius.tile }]}>
+            <Ionicons name={KIND_META[mention.kind].icon} size={18} color={kind.solid} />
           </View>
-          {attribution.length > 0 && (
-            <Text style={[t.type.secondary, { color: t.color.text2 }]} numberOfLines={1}>
-              {attribution}
-            </Text>
-          )}
-          <Text style={[t.type.secondary, { color: t.color.text3 }]} numberOfLines={1}>
-            {mention.whyMentioned}
-          </Text>
-        </View>
 
-        <Ionicons name="chevron-forward" size={18} color={t.color.text3} />
+          <View style={styles.rowBody}>
+            <View style={styles.rowTitleLine}>
+              <Text style={[t.type.rowTitle, { color: t.color.text }]} numberOfLines={1}>
+                {mention.title}
+              </Text>
+              {isOwn && (
+                <View style={[styles.yours, { backgroundColor: palette.softTint }]}>
+                  <Text style={[t.type.label, { color: palette.primary, fontSize: 10 }]}>Yours</Text>
+                </View>
+              )}
+            </View>
+            {attribution.length > 0 && (
+              <Text style={[t.type.secondary, { color: t.color.text2 }]} numberOfLines={1}>
+                {attribution}
+              </Text>
+            )}
+            <Text style={[t.type.secondary, { color: t.color.text3 }]} numberOfLines={1}>
+              {mention.whyMentioned}
+            </Text>
+          </View>
+
+          <Ionicons name="chevron-forward" size={18} color={t.color.text3} />
+        </View>
       </Pressable>
     </Link>
   );
