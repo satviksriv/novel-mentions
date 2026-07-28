@@ -1,11 +1,12 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import { BookCover } from '@/components/BookCover';
 import { FilterChip } from '@/components/Chips';
+import { confirmRemoveBook } from '@/components/confirm-remove-book';
 import { MentionSheet } from '@/components/MentionSheet';
 import type { Book, Mention, MentionKind } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
@@ -75,10 +76,12 @@ function BookDetailLoaded({
 }) {
   const t = useTheme();
   const router = useRouter();
+  const repos = useRepositories();
   const palette = useBookPalette(book.palette);
 
   const [filter, setFilter] = useState<Filter>('all');
   const [logging, setLogging] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const filterKinds = useMemo(() => deriveFilterKinds(mentions), [mentions]);
   const groups = useMemo(() => {
     const visible = filter === 'all' ? mentions : mentions.filter((m) => m.kind === filter);
@@ -86,6 +89,20 @@ function BookDetailLoaded({
   }, [mentions, filter]);
 
   const handleLogMention = () => setLogging(true);
+
+  // Remove is offered only for user-added books (#34); seed books are bundled.
+  const canRemove = book.origin === 'user';
+  const handleRemove = () => {
+    setMenuOpen(false);
+    confirmRemoveBook(book, async () => {
+      try {
+        await repos.removeUserBook(book.id);
+        router.back(); // back to Library, which refetches on focus
+      } catch {
+        Alert.alert('Couldn’t remove', 'Something went wrong removing this book. Please try again.');
+      }
+    });
+  };
 
   return (
     <View style={[styles.fill, { backgroundColor: t.color.bg }]}>
@@ -99,9 +116,20 @@ function BookDetailLoaded({
           gap: t.spacing.md,
         }}
       >
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={26} color={palette.onHeader} />
-        </Pressable>
+        <View style={styles.topBar}>
+          <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={26} color={palette.onHeader} />
+          </Pressable>
+          {canRemove && (
+            <Pressable
+              onPress={() => setMenuOpen(true)}
+              hitSlop={12}
+              accessibilityLabel="Book options"
+            >
+              <Ionicons name="ellipsis-horizontal" size={24} color={palette.onHeader} />
+            </Pressable>
+          )}
+        </View>
 
         <View style={styles.headerRow}>
           <BookCover book={book} size="header" />
@@ -198,6 +226,36 @@ function BookDetailLoaded({
             reload();
           }}
         />
+      )}
+
+      {/* Overflow menu — a lightweight dropdown (not a Modal, so the removal
+          confirmation Alert presents cleanly on top). Backdrop dismisses it. */}
+      {menuOpen && (
+        <>
+          <Pressable style={styles.menuBackdrop} onPress={() => setMenuOpen(false)} />
+          <View
+            style={[
+              styles.menuCard,
+              {
+                top: insets.top + 44,
+                backgroundColor: t.color.surface,
+                borderColor: t.color.border,
+                borderRadius: t.radius.card,
+                boxShadow: t.shadow.card,
+              },
+            ]}
+          >
+            <Pressable
+              onPress={handleRemove}
+              style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Ionicons name="trash-outline" size={19} color={t.status.rejected.solid} />
+              <Text style={[t.type.rowTitle, { color: t.status.rejected.solid }]}>
+                Remove from library
+              </Text>
+            </Pressable>
+          </View>
+        </>
       )}
     </View>
   );
@@ -306,7 +364,24 @@ function NotFound({ message }: { message: string }) {
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   center: { alignItems: 'center', justifyContent: 'center' },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   backBtn: { alignSelf: 'flex-start' },
+  menuBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  menuCard: {
+    position: 'absolute',
+    right: 20,
+    minWidth: 208,
+    borderWidth: 1,
+    paddingVertical: 4,
+    overflow: 'hidden',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
   headerRow: { flexDirection: 'row', gap: 14 },
   headerText: { flex: 1, gap: 4 },
   mentionPill: {

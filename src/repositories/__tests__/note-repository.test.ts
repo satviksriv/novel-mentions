@@ -48,6 +48,18 @@ describe('NoteRepository', () => {
     expect(await local.getUserNotes()).toHaveLength(0);
   });
 
+  it('removeForBook deletes whole-book and mention-level notes for that book only', async () => {
+    const { repo, local } = makeRepo();
+    const OTHER_BOOK = 'a0000000-0000-4000-8000-000000000002';
+    await repo.create({ bookId: BOOK_ID, body: 'whole-book note' });
+    await repo.create({ bookId: BOOK_ID, mentionId: MENTION_ID, body: 'mention note' });
+    const keep = await repo.create({ bookId: OTHER_BOOK, body: 'note on another book' });
+
+    await repo.removeForBook(BOOK_ID);
+
+    expect((await local.getUserNotes()).map((n) => n.id)).toEqual([keep.id]);
+  });
+
   it('rejects an empty note body', async () => {
     const { repo } = makeRepo();
     await expect(repo.create({ bookId: BOOK_ID, body: '' })).rejects.toThrow();

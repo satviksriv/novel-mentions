@@ -74,6 +74,20 @@ export class BookRepository {
   }
 
   /**
+   * Remove a user-added book from the local library (#34). Owns only the book
+   * record; the cascade of the reader's mentions and notes for it is coordinated
+   * in removeUserBookCascade. Seed books are bundled and not removable — an
+   * unknown id (which includes any seed book) throws rather than silently no-op.
+   */
+  async removeUserBook(bookId: string): Promise<void> {
+    const books = await this.local.getUserBooks();
+    if (!books.some((b) => b.id === bookId)) {
+      throw new Error(`Book "${bookId}" is not a user-added book (cannot remove)`);
+    }
+    await this.local.saveUserBooks(books.filter((b) => b.id !== bookId));
+  }
+
+  /**
    * Persist a full user-added book (origin forced to `user`), upserting by id.
    * Lower-level than addBook (caller supplies id + palette); retained for tests
    * and any direct write path.
