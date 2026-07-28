@@ -1,7 +1,16 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Link, useFocusEffect } from 'expo-router';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,14 +18,17 @@ import { AddBookSheet } from '@/components/AddBookSheet';
 import { BookCover } from '@/components/BookCover';
 import { CountChip } from '@/components/Chips';
 import { confirmRemoveBook } from '@/components/confirm-remove-book';
-import type { Book } from '@/domain';
+import type { Book, Mention } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
 import { useRepositories } from '@/repositories';
 import { useBookPalette, useTheme } from '@/theme';
 import { deriveKindCounts, formatLibrarySubline, formatWorkType, type KindCount } from '@/ui/derive';
+import { KIND_META } from '@/ui/kind';
+import { searchLibrary } from '@/ui/search';
 
 interface LibraryEntry {
   book: Book;
+  mentions: Mention[];
   counts: KindCount[];
   total: number;
 }
@@ -27,6 +39,7 @@ export default function Library() {
   const repos = useRepositories();
 
   const [adding, setAdding] = useState(false);
+  const [query, setQuery] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
   const reload = useCallback(() => setReloadKey((k) => k + 1), []);
 
@@ -64,17 +77,34 @@ export default function Library() {
     const entries: LibraryEntry[] = await Promise.all(
       books.map(async (book) => {
         const mentions = await repos.mentions.forBook(book.id);
-        return { book, counts: deriveKindCounts(mentions), total: mentions.length };
+        return { book, mentions, counts: deriveKindCounts(mentions), total: mentions.length };
       }),
     );
     const totalMentions = entries.reduce((n, e) => n + e.total, 0);
-    return { entries, subline: formatLibrarySubline(books.length, totalMentions) };
+    // Flat mention list (in book, then reading order) + a book lookup, both for
+    // search results — Mentions rows show "… · in {book}".
+    const allMentions = entries.flatMap((e) => e.mentions);
+    const bookById = new Map(books.map((b) => [b.id, b]));
+    return {
+      books,
+      entries,
+      allMentions,
+      bookById,
+      subline: formatLibrarySubline(books.length, totalMentions),
+    };
   }, [repos, reloadKey]);
+
+  const trimmedQuery = query.trim();
+  const searching = trimmedQuery.length > 0;
+  const results = data
+    ? searchLibrary(data.books, data.allMentions, trimmedQuery)
+    : { books: [], mentions: [] };
 
   return (
     <>
       <ScrollView
         style={{ backgroundColor: t.color.bg }}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingHorizontal: t.spacing.screen,
           paddingTop: insets.top + t.spacing.lg,
@@ -100,12 +130,24 @@ export default function Library() {
           </Pressable>
         </View>
 
-        {/* Search field — visual only; behaviour lands in issue #14. */}
+        {/* Search field — matches books and mentions (#14 / handoff A3). */}
         <View style={[styles.search, { backgroundColor: t.color.surface2, borderRadius: 14 }]}>
           <Ionicons name="search" size={18} color={t.color.text3} />
-          <Text style={{ fontFamily: t.font.sans, fontSize: 15, color: t.color.text3 }}>
-            Search books &amp; mentions
-          </Text>
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search books & mentions"
+            placeholderTextColor={t.color.text3}
+            style={[styles.searchInput, { fontFamily: t.font.sans, color: t.color.text }]}
+            returnKeyType="search"
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+          {searching && (
+            <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityLabel="Clear search">
+              <Ionicons name="close-circle" size={18} color={t.color.text3} />
+            </Pressable>
+          )}
         </View>
 
         {loading && <ActivityIndicator color={t.color.text3} style={{ marginTop: t.spacing.xl }} />}
@@ -116,11 +158,22 @@ export default function Library() {
           </Text>
         )}
 
-        <View style={{ gap: t.spacing.md }}>
-          {data?.entries.map((entry) => (
-            <BookCardLink key={entry.book.id} entry={entry} onRemove={handleRemove} />
-          ))}
-        </View>
+        {!loading && !error && data && (
+          searching ? (
+            <SearchResults
+              results={results}
+              query={trimmedQuery}
+              bookById={data.bookById}
+              onAddBook={() => setAdding(true)}
+            />
+          ) : (
+            <View style={{ gap: t.spacing.md }}>
+              {data.entries.map((entry) => (
+                <BookCardLink key={entry.book.id} entry={entry} onRemove={handleRemove} />
+              ))}
+            </View>
+          )
+        )}
       </ScrollView>
 
       {adding && (
@@ -228,6 +281,139 @@ function BookCardLink({
   );
 }
 
+/**
+ * Search results — the two labelled groups (handoff A3). Books first (rows →
+ * Book detail), then Mentions (kind icon + title + "{attribution} · in {book}"
+ * → Mention detail). When neither group matches, the combined empty state.
+ */
+function SearchResults({
+  results,
+  query,
+  bookById,
+  onAddBook,
+}: {
+  results: { books: Book[]; mentions: Mention[] };
+  query: string;
+  bookById: Map<string, Book>;
+  onAddBook: () => void;
+}) {
+  const t = useTheme();
+  const { books, mentions } = results;
+
+  if (books.length === 0 && mentions.length === 0) {
+    return <NoMatches query={query} onAddBook={onAddBook} />;
+  }
+
+  return (
+    <View style={{ gap: t.spacing.xl }}>
+      {books.length > 0 && (
+        <View style={{ gap: t.spacing.xs }}>
+          <Text style={[t.type.label, { color: t.color.text3 }]}>Books</Text>
+          {books.map((book) => (
+            <BookResultRow key={book.id} book={book} />
+          ))}
+        </View>
+      )}
+      {mentions.length > 0 && (
+        <View style={{ gap: t.spacing.xs }}>
+          <Text style={[t.type.label, { color: t.color.text3 }]}>Mentions</Text>
+          {mentions.map((mention) => (
+            <MentionResultRow key={mention.id} mention={mention} book={bookById.get(mention.bookId)} />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+/** A book search result — mini cover, title, "author · work type" → Book detail. */
+function BookResultRow({ book }: { book: Book }) {
+  const t = useTheme();
+  // Layout lives on the inner View, not the Pressable's function-style, so
+  // `Link asChild` can't drop it (the #29/#32 Link-asChild style bug).
+  return (
+    <Link href={`/book/${book.id}`} asChild>
+      <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+        <View style={[styles.resultRow, { borderBottomColor: t.color.line }]}>
+          <BookCover book={book} size="mini" showText={false} />
+          <View style={styles.resultBody}>
+            <Text style={[t.type.rowTitle, { color: t.color.text }]} numberOfLines={1}>
+              {book.title}
+            </Text>
+            <Text style={[t.type.secondary, { color: t.color.text2 }]} numberOfLines={1}>
+              {book.author} · {formatWorkType(book.workType)}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={t.color.text3} />
+        </View>
+      </Pressable>
+    </Link>
+  );
+}
+
+/** A mention search result — kind icon, title, "{attribution} · in {book}" → Mention detail. */
+function MentionResultRow({ mention, book }: { mention: Mention; book: Book | undefined }) {
+  const t = useTheme();
+  const kc = t.kind[mention.kind];
+  const subtitle = [mention.attribution, book ? `in ${book.title}` : null].filter(Boolean).join(' · ');
+
+  return (
+    <Link href={`/mention/${mention.id}`} asChild>
+      <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
+        <View style={[styles.resultRow, { borderBottomColor: t.color.line }]}>
+          <View style={[styles.kindIcon, { backgroundColor: kc.soft }]}>
+            <Ionicons name={KIND_META[mention.kind].icon} size={17} color={kc.solid} />
+          </View>
+          <View style={styles.resultBody}>
+            <Text style={[t.type.rowTitle, { color: t.color.text }]} numberOfLines={1}>
+              {mention.title}
+            </Text>
+            {subtitle.length > 0 && (
+              <Text style={[t.type.secondary, { color: t.color.text2 }]} numberOfLines={1}>
+                {subtitle}
+              </Text>
+            )}
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={t.color.text3} />
+        </View>
+      </Pressable>
+    </Link>
+  );
+}
+
+/** Combined empty state — query matched neither a book nor a mention (A3). */
+function NoMatches({ query, onAddBook }: { query: string; onAddBook: () => void }) {
+  const t = useTheme();
+  const router = useRouter();
+  return (
+    <View style={styles.noMatch}>
+      <View style={[styles.noMatchTile, { backgroundColor: t.color.surface2, borderRadius: t.radius.card }]}>
+        <Ionicons name="search" size={24} color={t.color.text3} />
+      </View>
+      <Text style={[t.type.mentionTitle, { color: t.color.text, textAlign: 'center', fontSize: 22 }]}>
+        {`No matches for “${query}”`}
+      </Text>
+      <Text style={[t.type.body, { color: t.color.text2, textAlign: 'center' }]}>
+        {"We couldn't find a book or a mention. Check the spelling, or add something new."}
+      </Text>
+      <Pressable
+        onPress={onAddBook}
+        style={({ pressed }) => [
+          styles.noMatchCta,
+          { backgroundColor: t.color.accentInk, borderRadius: t.radius.input, opacity: pressed ? 0.85 : 1 },
+        ]}
+      >
+        <Text style={{ fontFamily: t.font.sansBold, fontSize: 13.5, color: t.color.bg }}>Add a book</Text>
+      </Pressable>
+      {/* Secondary CTA. Until a global log-a-mention picker exists (#27), point
+          the reader at My stuff, where the "log a mention" flow lives. */}
+      <Pressable onPress={() => router.navigate('/my-stuff')} hitSlop={8}>
+        <Text style={[t.type.rowTitle, { color: t.color.text2 }]}>or log a mention you spotted</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   addBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
@@ -238,6 +424,19 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 14,
   },
+  searchInput: { flex: 1, fontSize: 15, padding: 0 },
+  resultRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  resultBody: { flex: 1, gap: 3 },
+  kindIcon: { width: 42, height: 42, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  noMatch: { alignItems: 'center', gap: 12, paddingTop: 40, paddingHorizontal: 12 },
+  noMatchTile: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center' },
+  noMatchCta: { marginTop: 4, paddingHorizontal: 22, paddingVertical: 13 },
   card: {
     flexDirection: 'row',
     gap: 15,
