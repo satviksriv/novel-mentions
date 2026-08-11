@@ -4,36 +4,23 @@ import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import type { Book, Mention, UserNote } from '@/domain';
 import { MentionSheet } from '@/components/MentionSheet';
+import { NoteSheet } from '@/components/NoteSheet';
 import { useAsync } from '@/hooks/use-async';
 import { useRepositories } from '@/repositories';
 import { useBookPalette, useTheme } from '@/theme';
 import { KIND_META } from '@/ui/kind';
+import { noteMeta } from '@/ui/note';
 import { STATUS_META } from '@/ui/status';
-
-const MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-] as const;
-
-/** Note meta line, e.g. "You · Jan 4". Formatted without Intl for determinism. */
-function noteMeta(iso: string): string {
-  const d = new Date(iso);
-  return `You · ${MONTHS[d.getMonth()]} ${d.getDate()}`;
-}
 
 /** The "What {name} was thinking" label — the subject, or a work-type fallback. */
 function thinkingLabel(mention: Mention, book: Book): string {
@@ -373,79 +360,6 @@ function NoteCard({
   );
 }
 
-function NoteSheet({
-  initial,
-  onSave,
-  onClose,
-}: {
-  initial?: string;
-  onSave: (body: string) => void | Promise<void>;
-  onClose: () => void;
-}) {
-  const t = useTheme();
-  const insets = useSafeAreaInsets();
-  const [body, setBody] = useState(initial ?? '');
-  const [saving, setSaving] = useState(false);
-  const canSave = body.trim().length > 0 && !saving;
-
-  const handleSave = async () => {
-    if (!canSave) return;
-    setSaving(true);
-    try {
-      await onSave(body.trim());
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <Modal transparent visible animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.sheetScrim}
-      >
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-        <View
-          style={[
-            styles.sheet,
-            {
-              backgroundColor: t.color.surface,
-              borderTopLeftRadius: t.radius.sheet,
-              borderTopRightRadius: t.radius.sheet,
-              paddingBottom: insets.bottom + t.spacing.lg,
-            },
-          ]}
-        >
-          <View style={[styles.grabber, { backgroundColor: t.color.border }]} />
-          <View style={styles.sheetHeader}>
-            <Pressable onPress={onClose} hitSlop={8}>
-              <Text style={[t.type.rowTitle, { color: t.color.text2 }]}>Cancel</Text>
-            </Pressable>
-            <Text style={[t.type.rowTitle, { color: t.color.text }]}>Your note</Text>
-            <Pressable onPress={handleSave} hitSlop={8} disabled={!canSave}>
-              <Text style={[t.type.rowTitle, { color: canSave ? t.color.text : t.color.text3 }]}>Save</Text>
-            </Pressable>
-          </View>
-          <TextInput
-            value={body}
-            onChangeText={setBody}
-            placeholder="Jot down a thought…"
-            placeholderTextColor={t.color.text3}
-            multiline
-            autoFocus
-            style={[
-              styles.noteInput,
-              t.type.note,
-              { color: t.color.text, backgroundColor: t.color.bg, borderColor: t.color.border, borderRadius: t.radius.input },
-            ]}
-          />
-          <Text style={[t.type.secondary, { color: t.color.text3 }]}>Private to you · plain text</Text>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
-  );
-}
-
 function NotFound({ message }: { message: string }) {
   const t = useTheme();
   const router = useRouter();
@@ -501,9 +415,4 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderStyle: 'dashed',
   },
-  sheetScrim: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(12,8,3,0.5)' },
-  sheet: { paddingHorizontal: 20, paddingTop: 10, gap: 14 },
-  grabber: { alignSelf: 'center', width: 36, height: 4, borderRadius: 2 },
-  sheetHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  noteInput: { minHeight: 120, borderWidth: 1, padding: 12, textAlignVertical: 'top' },
 });
