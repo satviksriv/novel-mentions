@@ -1,19 +1,21 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import { BookCover } from '@/components/BookCover';
 import { FilterChip } from '@/components/Chips';
 import { confirmRemoveBook } from '@/components/confirm-remove-book';
 import { MentionSheet } from '@/components/MentionSheet';
-import type { Book, Mention, MentionKind } from '@/domain';
+import { NoteSheet } from '@/components/NoteSheet';
+import type { Book, Mention, MentionKind, UserNote } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
 import { useRepositories } from '@/repositories';
 import { useBookPalette, useTheme, type BookPalette } from '@/theme';
 import { deriveFilterKinds, groupByChapter } from '@/ui/derive';
 import { KIND_META } from '@/ui/kind';
+import { noteMeta } from '@/ui/note';
 
 type Filter = MentionKind | 'all';
 
@@ -43,9 +45,12 @@ export default function BookDetail() {
 
   const { data, loading, error } = useAsync(async () => {
     const book = await repos.books.getById(id);
-    if (!book) return { book: undefined, mentions: [] as Mention[] };
-    const mentions = await repos.mentions.forBook(id);
-    return { book, mentions };
+    if (!book) return { book: undefined, mentions: [] as Mention[], bookNotes: [] as UserNote[] };
+    const [mentions, bookNotes] = await Promise.all([
+      repos.mentions.forBook(id),
+      repos.notes.bookLevelNotes(id),
+    ]);
+    return { book, mentions, bookNotes };
   }, [repos, id, reloadKey]);
 
   if (loading) {
@@ -60,17 +65,27 @@ export default function BookDetail() {
     return <NotFound message={error ? "Couldn't load this book." : 'Book not found.'} />;
   }
 
-  return <BookDetailLoaded book={data.book} mentions={data.mentions} insets={insets} reload={reload} />;
+  return (
+    <BookDetailLoaded
+      book={data.book}
+      mentions={data.mentions}
+      bookNotes={data.bookNotes}
+      insets={insets}
+      reload={reload}
+    />
+  );
 }
 
 function BookDetailLoaded({
   book,
   mentions,
+  bookNotes,
   insets,
   reload,
 }: {
   book: Book;
   mentions: Mention[];
+  bookNotes: UserNote[];
   insets: EdgeInsets;
   reload: () => void;
 }) {
@@ -82,6 +97,9 @@ function BookDetailLoaded({
   const [filter, setFilter] = useState<Filter>('all');
   const [logging, setLogging] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // null = note sheet closed; { note } = edit; {} = add a new book-level note.
+  const [noteSheet, setNoteSheet] = useState<{ note?: UserNote } | null>(null);
+  const [notesExpanded, setNotesExpanded] = useState(false);
   const filterKinds = useMemo(() => deriveFilterKinds(mentions), [mentions]);
   const groups = useMemo(() => {
     const visible = filter === 'all' ? mentions : mentions.filter((m) => m.kind === filter);
@@ -104,6 +122,46 @@ function BookDetailLoaded({
     });
   };
 
+  // Book-level notes (#15 / handoff A4). "Add" comes from the overflow menu;
+  // editing/removing existing ones happens from the pinned card.
+  const handleAddNote = () => {
+    setMenuOpen(false);
+    setNoteSheet({});
+  };
+
+  const saveNote = async (body: string) => {
+    const target = noteSheet?.note;
+    if (target) await repos.notes.update(target.id, body);
+    else await repos.notes.create({ bookId: book.id, mentionId: null, body });
+    setNoteSheet(null);
+    reload();
+  };
+
+  const deleteNote = (note: UserNote) => {
+    Alert.alert('Delete note?', 'This note will be permanently removed.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await repos.notes.remove(note.id);
+          reload();
+        },
+      },
+    ]);
+  };
+
+  // OS share sheet (kept in MVP by owner decision). React Native's core Share
+  // API — no native module, Expo Go safe.
+  const handleShare = async () => {
+    setMenuOpen(false);
+    try {
+      await Share.share({ message: `${book.title} by ${book.author}`, title: book.title });
+    } catch {
+      // Share dismissed or unavailable — nothing to recover.
+    }
+  };
+
   return (
     <View style={[styles.fill, { backgroundColor: t.color.bg }]}>
       {/* Themed header, pinned. */}
@@ -120,15 +178,13 @@ function BookDetailLoaded({
           <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backBtn}>
             <Ionicons name="chevron-back" size={26} color={palette.onHeader} />
           </Pressable>
-          {canRemove && (
-            <Pressable
-              onPress={() => setMenuOpen(true)}
-              hitSlop={12}
-              accessibilityLabel="Book options"
-            >
-              <Ionicons name="ellipsis-horizontal" size={24} color={palette.onHeader} />
-            </Pressable>
-          )}
+          <Pressable
+            onPress={() => setMenuOpen(true)}
+            hitSlop={12}
+            accessibilityLabel="Book options"
+          >
+            <Ionicons name="ellipsis-horizontal" size={24} color={palette.onHeader} />
+          </Pressable>
         </View>
 
         <View style={styles.headerRow}>
@@ -158,7 +214,19 @@ function BookDetailLoaded({
         showsVerticalScrollIndicator={false}
       >
         {mentions.length === 0 ? (
-          <EmptyState author={book.author} onLog={handleLogMention} />
+          <>
+            {bookNotes.length > 0 && (
+              <BookNotesCard
+                notes={bookNotes}
+                palette={palette}
+                expanded={notesExpanded}
+                onToggle={() => setNotesExpanded((v) => !v)}
+                onEditNote={(note) => setNoteSheet({ note })}
+                onDeleteNote={deleteNote}
+              />
+            )}
+            <EmptyState author={book.author} onLog={handleLogMention} />
+          </>
         ) : (
           <>
             {/* Filter chips. */}
@@ -183,6 +251,18 @@ function BookDetailLoaded({
                 />
               ))}
             </ScrollView>
+
+            {/* Pinned book-level notes (#15 / handoff A4) — under the chips. */}
+            {bookNotes.length > 0 && (
+              <BookNotesCard
+                notes={bookNotes}
+                palette={palette}
+                expanded={notesExpanded}
+                onToggle={() => setNotesExpanded((v) => !v)}
+                onEditNote={(note) => setNoteSheet({ note })}
+                onDeleteNote={deleteNote}
+              />
+            )}
 
             {/* Chapter-grouped timeline. */}
             <View style={{ paddingHorizontal: t.spacing.screen, gap: t.spacing.lg }}>
@@ -228,6 +308,15 @@ function BookDetailLoaded({
         />
       )}
 
+      {noteSheet !== null && (
+        <NoteSheet
+          title={noteSheet.note ? 'Your note' : 'Note on this book'}
+          initial={noteSheet.note?.body}
+          onSave={saveNote}
+          onClose={() => setNoteSheet(null)}
+        />
+      )}
+
       {/* Overflow menu — a lightweight dropdown (not a Modal, so the removal
           confirmation Alert presents cleanly on top). Backdrop dismisses it. */}
       {menuOpen && (
@@ -246,14 +335,38 @@ function BookDetailLoaded({
             ]}
           >
             <Pressable
-              onPress={handleRemove}
-              style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.6 : 1 }]}
+              onPress={handleAddNote}
+              style={({ pressed }) => [
+                styles.menuItem,
+                styles.menuDivider,
+                { borderBottomColor: t.color.line, opacity: pressed ? 0.6 : 1 },
+              ]}
             >
-              <Ionicons name="trash-outline" size={19} color={t.status.rejected.solid} />
-              <Text style={[t.type.rowTitle, { color: t.status.rejected.solid }]}>
-                Remove from library
-              </Text>
+              <Ionicons name="bookmark-outline" size={19} color={t.color.text} />
+              <Text style={[t.type.rowTitle, { color: t.color.text }]}>Add a note on this book</Text>
             </Pressable>
+            <Pressable
+              onPress={handleShare}
+              style={({ pressed }) => [
+                styles.menuItem,
+                canRemove && styles.menuDivider,
+                { borderBottomColor: t.color.line, opacity: pressed ? 0.6 : 1 },
+              ]}
+            >
+              <Ionicons name="share-social-outline" size={19} color={t.color.text} />
+              <Text style={[t.type.rowTitle, { color: t.color.text }]}>Share book</Text>
+            </Pressable>
+            {canRemove && (
+              <Pressable
+                onPress={handleRemove}
+                style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.6 : 1 }]}
+              >
+                <Ionicons name="trash-outline" size={19} color={t.status.rejected.solid} />
+                <Text style={[t.type.rowTitle, { color: t.status.rejected.solid }]}>
+                  Remove from library
+                </Text>
+              </Pressable>
+            )}
           </View>
         </>
       )}
@@ -347,6 +460,80 @@ function EmptyState({ author, onLog }: { author: string; onLog: () => void }) {
   );
 }
 
+/**
+ * Pinned "Your notes on this book · {n}" card under the filter chips (handoff
+ * A4). Collapsed: the bookmark icon, the count label, and the first note's text.
+ * Tapping the header expands it to the full list; each note there is tappable to
+ * edit, long-press to delete (mirroring the mention-detail note cards).
+ */
+function BookNotesCard({
+  notes,
+  palette,
+  expanded,
+  onToggle,
+  onEditNote,
+  onDeleteNote,
+}: {
+  notes: UserNote[];
+  palette: BookPalette;
+  expanded: boolean;
+  onToggle: () => void;
+  onEditNote: (note: UserNote) => void;
+  onDeleteNote: (note: UserNote) => void;
+}) {
+  const t = useTheme();
+  const first = notes[0];
+  return (
+    <View style={{ paddingHorizontal: t.spacing.screen }}>
+      <View style={[styles.notesCard, { backgroundColor: palette.softTint }]}>
+        <Pressable
+          onPress={onToggle}
+          style={styles.notesHead}
+          accessibilityRole="button"
+          accessibilityLabel={`Your notes on this book, ${notes.length}`}
+        >
+          <Ionicons name="bookmark-outline" size={18} color={palette.primary} style={styles.notesIcon} />
+          <View style={styles.notesHeadBody}>
+            <Text style={[t.type.label, { color: palette.primary }]}>
+              Your notes on this book · {notes.length}
+            </Text>
+            {!expanded && first && (
+              <Text style={[t.type.note, { color: t.color.text }]} numberOfLines={2}>
+                {first.body}
+              </Text>
+            )}
+          </View>
+          <Ionicons
+            name={expanded ? 'chevron-up' : 'chevron-down'}
+            size={16}
+            color={palette.primary}
+            style={styles.notesChevron}
+          />
+        </Pressable>
+
+        {expanded && (
+          <View style={styles.notesList}>
+            {notes.map((note) => (
+              <Pressable
+                key={note.id}
+                onPress={() => onEditNote(note)}
+                onLongPress={() => onDeleteNote(note)}
+                style={({ pressed }) => [
+                  styles.noteMini,
+                  { backgroundColor: t.color.surface, borderRadius: t.radius.note, opacity: pressed ? 0.7 : 1 },
+                ]}
+              >
+                <Text style={[t.type.note, { color: t.color.text }]}>{note.body}</Text>
+                <Text style={[t.type.secondary, { color: t.color.text3 }]}>{noteMeta(note.createdAt)}</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
 function NotFound({ message }: { message: string }) {
   const t = useTheme();
   const router = useRouter();
@@ -382,6 +569,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
   },
+  menuDivider: { borderBottomWidth: 1 },
   headerRow: { flexDirection: 'row', gap: 14 },
   headerText: { flex: 1, gap: 4 },
   mentionPill: {
@@ -415,4 +603,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cta: { marginTop: 8, paddingHorizontal: 22, paddingVertical: 13 },
+  // Pinned book-notes card (radius 14 matches the search field / segmented
+  // track — a design value with no named radius token).
+  notesCard: { borderRadius: 14, paddingVertical: 12, paddingHorizontal: 14 },
+  notesHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 11 },
+  notesIcon: { marginTop: 1 },
+  notesChevron: { marginTop: 2 },
+  notesHeadBody: { flex: 1, gap: 4 },
+  notesList: { gap: 8, marginTop: 10 },
+  noteMini: { padding: 12, gap: 4 },
 });
