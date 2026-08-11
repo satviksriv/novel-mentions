@@ -189,7 +189,11 @@ export function MentionSheet({
               })}
             </View>
 
-            <Field label="Title" value={title} onChangeText={setTitle} placeholder="What was mentioned?" />
+            <Text style={[t.type.secondary, { color: t.color.text3 }]}>
+              <Text style={{ color: t.color.text2, fontFamily: t.font.sansBold }}>*</Text> Required to save
+            </Text>
+
+            <Field label="Title" value={title} onChangeText={setTitle} placeholder="What was mentioned?" required />
             <Field
               label="Attribution"
               value={attribution}
@@ -201,6 +205,7 @@ export function MentionSheet({
               value={chapter}
               onChangeText={setChapter}
               placeholder="e.g. Chapter 3"
+              required
             />
             <View style={styles.twoUp}>
               <View style={styles.half}>
@@ -224,6 +229,7 @@ export function MentionSheet({
               onChangeText={setWhy}
               placeholder="What it adds to the moment."
               multiline
+              required
             />
             <Field
               label="Character context"
@@ -241,6 +247,7 @@ export function MentionSheet({
 
 function Field({
   label,
+  required,
   multiline,
   ...input
 }: {
@@ -248,6 +255,8 @@ function Field({
   value: string;
   onChangeText: (v: string) => void;
   placeholder?: string;
+  /** Marks the label with a * so the reader can see it's needed to save. */
+  required?: boolean;
   multiline?: boolean;
   maxLength?: number;
   keyboardType?: 'numbers-and-punctuation';
@@ -255,7 +264,10 @@ function Field({
   const t = useTheme();
   return (
     <View style={{ gap: t.spacing.xs }}>
-      <Text style={[t.type.label, { color: t.color.text2 }]}>{label}</Text>
+      <Text style={[t.type.label, { color: t.color.text2 }]}>
+        {label}
+        {required && <Text style={{ color: t.color.text }}> *</Text>}
+      </Text>
       <TextInput
         placeholderTextColor={t.color.text3}
         multiline={multiline}
