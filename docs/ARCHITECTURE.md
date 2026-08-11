@@ -119,8 +119,8 @@ Two curated books (~8–12 mentions each), short excerpts + original commentary 
 1. ~~**Stack**~~ — decided: React Native + Expo (see "Decisions so far" above; discussion on issue #1).
 2. **Backend** (Phase 2): Supabase vs Firebase vs custom.
 3. **Moderation model** (Phase 2): owner-as-moderator with AI assist vs heavier automation.
-4. **Books-lookup API** for add-a-book: Open Library vs Google Books vs other (needs cover images + no-auth or free-tier access).
-5. **"Share book"** overflow action (appeared in design Addendum A4): keep in MVP or drop.
+4. ~~**Books-lookup API** for add-a-book~~ — decided: Open Library (no auth, free, carries cover images). Implemented in #12 behind a `BookLookupSource` interface (`src/data/lookup/`), so a Phase-3 provider swap only touches that layer.
+5. ~~**"Share book"** overflow action~~ — decided: kept in MVP. Implemented in #15 on the Book-detail overflow menu, using React Native's core `Share` (no native module, Expo Go safe).
 
 ## Verification (once building starts)
 
