@@ -13,18 +13,77 @@ readers.
 
 ## Status
 
-**Pre-implementation.** The architecture is settled
-([docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)), the visual design is
-delivered
-([docs/design_handoff_novel_mentions/](docs/design_handoff_novel_mentions/README.md)),
-and the stack is decided (issue #1); implementation starts with the app
-scaffold (issue #3). No app code yet.
+**Phase 1 (MVP) is complete** — every feature built, verified on device, and
+merged (August 2026). The app runs on iPhone through Expo Go: local-first, no
+accounts, no backend, and fully usable offline.
+
+It is not distributable yet. Expo Go is the delivery mechanism for this phase,
+so putting it on someone else's phone needs EAS builds and TestFlight — that
+arrives with the Phase 3 store release.
+
+## What it does
+
+**Explore curated content.** Two books ship with the app — *The Great Gatsby*
+and *The Perks of Being a Wallflower* — carrying 23 curated mentions between
+them. Each mention records its chapter location, a short excerpt, why it's
+there, and what the character or author was thinking. Mentions group by chapter
+in reading order and filter by kind. Every book carries its own colour identity,
+themed through its screens.
+
+**Make it yours.** Private notes on any mention or on a whole book. Log mentions
+you spot yourself and move them through the submission lifecycle. Add books via
+Open Library search, and remove your own again — your notes and mentions for that
+book cascade with it. Search across every book and mention. A "My stuff" tab
+collects everything you've written, with review status.
+
+**Understand it on arrival.** First launch opens a three-beat welcome, then
+one-time coach-marks teach browsing and logging in place. The Library separates
+"Included to get you started" from "Your library", so the curated books never
+masquerade as ones you added.
+
+Light and dark throughout, driven by the system colour scheme.
+
+### Not in Phase 1
+
+No accounts and no sync. Nothing you log reaches other readers yet — "Submit for
+review" flips a local status; the real fact-check pipeline is Phase 2. Media
+links (Spotify/TMDB), AI-extracted books beyond the seed two, and the App Store
+release are Phase 3.
+
+## Running it
+
+Requires **Node ≥ 20.19.4** (`.nvmrc` pins 24) and the **Expo Go** app on an
+iOS or Android device.
+
+```bash
+npm install
+```
+
+```bash
+npm start
+```
+
+Scan the QR code with your device's camera to open the app in Expo Go. The
+machine running the dev server and the phone must be on the same network; if
+that isn't possible, use `npx expo start --tunnel`.
+
+Other commands:
+
+| Command | What it does |
+| --- | --- |
+| `npm test` | Jest suite (`jest-expo`) — 133 tests |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | `expo lint` |
+| `npm run ios` / `android` / `web` | Start targeting a platform |
+
+Add dependencies with `npx expo install <pkg>` rather than bare `npm install`,
+so versions stay compatible with the pinned Expo SDK.
 
 ## Roadmap
 
-- **Phase 1 — MVP**: local-first mobile app, no accounts/backend. Two seed
-  books, browse mentions, private notes, log your own mentions, add books
-  (saved locally only).
+- ~~**Phase 1 — MVP**~~ ✅ **Complete.** Local-first mobile app, no
+  accounts/backend. Two seed books, browse mentions, private notes, log your own
+  mentions, add books (saved locally only), first-run onboarding.
 - **Phase 2 — Community**: backend, accounts, submission → fact-check →
   moderation pipeline, content sync.
 - **Phase 3 — Integrations**: media links (Spotify/TMDB), more books via the
@@ -32,14 +91,29 @@ scaffold (issue #3). No app code yet.
 
 ## Stack
 
-**React Native + Expo** (managed workflow, TypeScript, expo-router), staying
-Expo Go-compatible throughout Phase 1. Development happens on Windows with an
-iPhone as the primary test device — Expo Go provides the live on-device loop,
-and EAS handles cloud iOS/Android builds for store releases later. Rationale:
-"Decisions so far" in the architecture doc and the discussion on issue #1.
+**React Native + Expo** (SDK 54, managed workflow, TypeScript, expo-router).
+Development happens on Windows with an iPhone as the primary test device, which
+is what drove the choice: there are no local iOS builds, so Expo Go provides the
+live on-device loop and EAS handles cloud builds for store releases later. Phase
+1 stayed Expo Go-compatible throughout — only Expo-bundled or pure-JS modules,
+no custom native code.
+
+The app is layered UI → repositories → data sources, with the UI talking only to
+repositories. Rationale and the full blueprint: the architecture doc below.
+
+## Documentation
+
+| Document | What's in it |
+| --- | --- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The authoritative blueprint — domain models, layering, mention lifecycle, colour system, phasing |
+| [docs/design_handoff_novel_mentions/](docs/design_handoff_novel_mentions/README.md) | Base design system: token layer and the five main screens |
+| [docs/design_handoff_onboarding_flow/](docs/design_handoff_onboarding_flow/README.md) | First-run onboarding design, extending the base system |
+| [docs/WORKFLOW.md](docs/WORKFLOW.md) | Git flow: feature branches, PRs, conventional commits, issues per feature |
+| [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) | Historical — the input to the first design session, predating the stack decision |
+| [CLAUDE.md](CLAUDE.md) | Working context for Claude Code sessions |
 
 ## Development workflow
 
 See [docs/WORKFLOW.md](docs/WORKFLOW.md) — light Git flow: short-lived feature
 branches off `main`, PRs with conventional commits, issues per feature,
-milestones per phase.
+milestones per phase. GitHub issues are the live tracker.
