@@ -3,7 +3,7 @@
  * React so they can be unit-tested directly. Screens call these over the merged
  * mention lists the repositories return.
  */
-import type { Mention, MentionKind, WorkType } from '@/domain';
+import type { BookOrigin, Mention, MentionKind, WorkType } from '@/domain';
 
 import { KIND_ORDER } from './kind';
 
@@ -64,6 +64,40 @@ export function groupByChapter(mentions: readonly Mention[]): ChapterGroup[] {
     group.mentions.push(m);
   }
   return groups;
+}
+
+/** Library provenance band copy (onboarding handoff O2). */
+export const PROVENANCE_BANDS = {
+  seed: 'Included to get you started',
+  user: 'Your library',
+} as const;
+
+export interface LibrarySection<T> {
+  /** Band label — see PROVENANCE_BANDS. */
+  readonly label: string;
+  readonly entries: T[];
+}
+
+/**
+ * Split Library entries into their provenance sections — the books that shipped
+ * with the app ("Included to get you started") above the reader's own ("Your
+ * library"), so a new reader never reads the curated starters as books they
+ * added themselves (onboarding handoff O2, issue #46).
+ *
+ * Input order is preserved within each section, and **empty sections are
+ * omitted** — a reader who has added nothing sees only the Included band.
+ */
+export function groupByProvenance<T extends { readonly book: { readonly origin: BookOrigin } }>(
+  entries: readonly T[],
+): LibrarySection<T>[] {
+  const sections: LibrarySection<T>[] = [];
+  for (const origin of ['seed', 'user'] as const) {
+    const matching = entries.filter((e) => e.book.origin === origin);
+    if (matching.length > 0) {
+      sections.push({ label: PROVENANCE_BANDS[origin], entries: matching });
+    }
+  }
+  return sections;
 }
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;

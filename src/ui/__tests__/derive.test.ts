@@ -6,6 +6,8 @@ import {
   formatLibrarySubline,
   formatWorkType,
   groupByChapter,
+  groupByProvenance,
+  PROVENANCE_BANDS,
 } from '../derive';
 
 let seq = 0;
@@ -106,5 +108,40 @@ describe('formatWorkType', () => {
     expect(formatWorkType('fiction')).toBe('Fiction');
     expect(formatWorkType('nonFiction')).toBe('Nonfiction');
     expect(formatWorkType('memoir')).toBe('Memoir');
+  });
+});
+
+describe('groupByProvenance', () => {
+  const entry = (id: string, origin: 'seed' | 'user') => ({ book: { id, origin } });
+
+  it('puts the included books above the reader’s own', () => {
+    const sections = groupByProvenance([
+      entry('mine', 'user'),
+      entry('gatsby', 'seed'),
+      entry('perks', 'seed'),
+    ]);
+
+    expect(sections.map((s) => s.label)).toEqual([PROVENANCE_BANDS.seed, PROVENANCE_BANDS.user]);
+    expect(sections[0].entries.map((e) => e.book.id)).toEqual(['gatsby', 'perks']);
+    expect(sections[1].entries.map((e) => e.book.id)).toEqual(['mine']);
+  });
+
+  it('omits the "Your library" band when the reader has added nothing', () => {
+    const sections = groupByProvenance([entry('gatsby', 'seed'), entry('perks', 'seed')]);
+    expect(sections).toHaveLength(1);
+    expect(sections[0].label).toBe(PROVENANCE_BANDS.seed);
+  });
+
+  it('preserves input order within a section', () => {
+    const sections = groupByProvenance([
+      entry('b', 'user'),
+      entry('a', 'user'),
+      entry('c', 'user'),
+    ]);
+    expect(sections[0].entries.map((e) => e.book.id)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('returns no sections for an empty library', () => {
+    expect(groupByProvenance([])).toEqual([]);
   });
 });

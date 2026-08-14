@@ -22,7 +22,14 @@ import type { Book, Mention } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
 import { useRepositories } from '@/repositories';
 import { useBookPalette, useTheme } from '@/theme';
-import { deriveKindCounts, formatLibrarySubline, formatWorkType, type KindCount } from '@/ui/derive';
+import { SectionBand } from '@/components/SectionBand';
+import {
+  deriveKindCounts,
+  formatLibrarySubline,
+  formatWorkType,
+  groupByProvenance,
+  type KindCount,
+} from '@/ui/derive';
 import { KIND_META } from '@/ui/kind';
 import { searchLibrary } from '@/ui/search';
 
@@ -167,9 +174,17 @@ export default function Library() {
               onAddBook={() => setAdding(true)}
             />
           ) : (
-            <View style={{ gap: t.spacing.md }}>
-              {data.entries.map((entry) => (
-                <BookCardLink key={entry.book.id} entry={entry} onRemove={handleRemove} />
+            /* Books grouped by provenance so the curated starters never read as
+               the reader's own shelf (onboarding handoff O2). The "Your
+               library" band only appears once the reader has added a book. */
+            <View style={{ gap: t.spacing.lg }}>
+              {groupByProvenance(data.entries).map((section) => (
+                <View key={section.label} style={{ gap: t.spacing.md }}>
+                  <SectionBand label={section.label} />
+                  {section.entries.map((entry) => (
+                    <BookCardLink key={entry.book.id} entry={entry} onRemove={handleRemove} />
+                  ))}
+                </View>
               ))}
             </View>
           )
@@ -221,9 +236,22 @@ function BookCardLink({
         >
           <BookCover book={book} size="card" />
           <View style={styles.cardBody}>
-            <Text style={[t.type.cardTitle, { color: t.color.text }]} numberOfLines={2}>
-              {book.title}
-            </Text>
+            <View style={styles.cardTitleLine}>
+              <Text style={[t.type.cardTitle, { color: t.color.text, flexShrink: 1 }]} numberOfLines={2}>
+                {book.title}
+              </Text>
+              {/* Marks a book that shipped with the app (handoff O2). The
+                  prototype flows this inline in the title; RN can't round an
+                  inline text span, so it sits beside the title as its own
+                  view — the same recipe as the "Yours" badge on mention rows. */}
+              {book.origin === 'seed' && (
+                <View style={[styles.includedTag, { backgroundColor: t.color.surface2 }]}>
+                  <Text style={[t.type.label, styles.includedTagText, { color: t.color.text2 }]}>
+                    Included
+                  </Text>
+                </View>
+              )}
+            </View>
             <Text style={[t.type.secondary, { color: t.color.text2 }]} numberOfLines={1}>
               {book.author} · {formatWorkType(book.workType)}
             </Text>
@@ -465,6 +493,11 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 6,
   },
+  cardTitleLine: { flexDirection: 'row', alignItems: 'flex-start', gap: 7 },
+  includedTag: { paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6, marginTop: 3 },
+  // 9.5px / +0.05em per O2 — narrower than the 11px/+0.08em `label` preset it
+  // otherwise reuses, so the tag sits quietly beside an 18.5px serif title.
+  includedTagText: { fontSize: 9.5, letterSpacing: 0.48 },
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',

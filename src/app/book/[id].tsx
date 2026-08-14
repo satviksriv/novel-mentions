@@ -9,6 +9,7 @@ import { FilterChip } from '@/components/Chips';
 import { confirmRemoveBook } from '@/components/confirm-remove-book';
 import { MentionSheet } from '@/components/MentionSheet';
 import { NoteSheet } from '@/components/NoteSheet';
+import { SectionBand } from '@/components/SectionBand';
 import type { Book, Mention, MentionKind, UserNote } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
 import { useRepositories } from '@/repositories';
@@ -268,7 +269,7 @@ function BookDetailLoaded({
             <View style={{ paddingHorizontal: t.spacing.screen, gap: t.spacing.lg }}>
               {groups.map((group) => (
                 <View key={group.chapter} style={{ gap: t.spacing.xs }}>
-                  <ChapterHeader label={group.chapter} />
+                  <SectionBand label={group.chapter} />
                   {group.mentions.map((m) => (
                     <MentionRow key={m.id} mention={m} palette={palette} />
                   ))}
@@ -370,16 +371,6 @@ function BookDetailLoaded({
           </View>
         </>
       )}
-    </View>
-  );
-}
-
-function ChapterHeader({ label }: { label: string }) {
-  const t = useTheme();
-  return (
-    <View style={styles.chapterHeader}>
-      <Text style={[t.type.label, { color: t.color.text3 }]}>{label}</Text>
-      <View style={[styles.rule, { backgroundColor: t.color.border }]} />
     </View>
   );
 }
@@ -581,8 +572,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
   },
   chipRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 20, paddingTop: 16 },
-  chapterHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  rule: { flex: 1, height: 1 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
