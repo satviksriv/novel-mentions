@@ -12,9 +12,13 @@ Phase 1 gained late scope in August 2026, now also shipped: provenance-grouped L
 
 > **The seed books stay** (owner decision, August 2026). Removing them was considered so a new reader starts empty; rejected because Phase 1 has no backend, so without them the only path to content is *add a book → zero curated mentions → type your own by hand*, which hides the app's whole proposition. The seed content is product, not test scaffolding (see ARCHITECTURE.md → "Seed content (MVP)"). The confusion they cause is a **framing** problem, addressed by #46 and #44.
 
-> **SDK 54, not latest**: the project targets Expo SDK 54 because that's what the released Expo Go supports on the test iPhone. Do not bump the SDK (via `create-expo-app` upgrades or `expo install --fix` to a newer major) unless Expo Go on the device supports it — a newer SDK makes the app unloadable in Expo Go, which is the Phase 1 dev loop.
+> **SDK 54, not latest**: the project targets Expo SDK 54 because that's what the released Expo Go supports on the test iPhone. Do not bump the SDK (via `create-expo-app` upgrades or `expo install --fix` to a newer major) unless Expo Go on the device supports it — a newer SDK makes the app unloadable in Expo Go, which is still the dev loop.
 
-**Stack is decided** (issue #1, July 2026): **React Native + Expo** — managed workflow, TypeScript, expo-router. Hard constraint driving it: development happens on a Windows machine with an iPhone 16 as the test device (no local iOS builds; Expo Go is the dev loop). **Stay Expo Go-compatible for all of Phase 1**: only Expo-bundled or pure-JS modules, added via `npx expo install`; do not introduce libraries requiring custom native code without flagging that this forces a switch to EAS development builds.
+**Stack is decided** (issue #1, July 2026): **React Native + Expo** — managed workflow, TypeScript, expo-router. Hard constraint driving it: development happens on a Windows machine with an iPhone 16 as the test device (no local iOS builds; Expo Go is the dev loop). Through Phase 1 this meant: only Expo-bundled or pure-JS modules, added via `npx expo install`, and no libraries requiring custom native code.
+
+> **Open decision — does the Expo Go constraint carry into Phase 2?** It was scoped to Phase 1, which closed in August 2026. Nothing has been decided since, so **keep treating it as live**: if a Phase 2 dependency needs custom native code, flag it and get an explicit decision rather than quietly switching the project to EAS development builds.
+
+> **No distribution setup exists.** Expo Go is the only way the app currently reaches a device, and Expo Go is a dev loop, not distribution — sharing a build with anyone else needs EAS Build (an APK is the low-friction route on Android; iOS needs TestFlight). There is no `eas.json`, no `eas-cli` dependency, and no linked EAS project. The roadmap puts store release in Phase 3.
 
 **Visual design is delivered** in two bundles, both authoritative:
 - [docs/design_handoff_novel_mentions/](docs/design_handoff_novel_mentions/README.md) (issue #2) — the base system: the token layer plus the five main screens. Its Addenda section supersedes the body text where they conflict.
@@ -24,9 +28,11 @@ The `.dc.html` files in each are visual references only; never port their HTML/S
 
 The **base** handoff README and [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) predate the stack decision — ignore their "stack is undecided" language. (The onboarding bundle postdates it and targets this stack directly.) The brief was the *input* to the first design session and is historical; where it disagrees with a handoff, the handoff wins.
 
+[README.md](README.md) is the repo's public front door — status, the feature set, run instructions, and a documentation index. It's written for a human arriving at the repo, so keep it in sync when shipping user-visible features; this file is the working context for a session and goes into more depth.
+
 ## Development
 
-Requires **Node ≥ 20.19.4** (`.nvmrc` pins 24; enforced via `package.json` engines). Install deps with `npm install`. Add new libraries with `npx expo install <pkg>` (never bare `npm install <pkg>`) so versions stay SDK-compatible — and keep them Expo Go-compatible per the Phase 1 constraint above.
+Requires **Node ≥ 20.19.4** (`.nvmrc` pins 24; enforced via `package.json` engines). Install deps with `npm install`. Add new libraries with `npx expo install <pkg>` (never bare `npm install <pkg>`) so versions stay SDK-compatible — and keep them Expo Go-compatible per the open decision above.
 
 Commands:
 - `npm start` — start the Expo dev server (scan the QR with Expo Go on the iPhone; the dev loop).
