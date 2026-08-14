@@ -27,6 +27,24 @@ export function CountChip({ kind, count }: { kind: MentionKind; count: number })
   );
 }
 
+/**
+ * The same kind-soft/kind-solid recipe as CountChip, but naming the kind instead
+ * of counting it, at the larger footprint onboarding beat 1 uses to introduce the
+ * colour language (handoff O1: radius 12, 14.5px).
+ */
+export function KindChip({ kind }: { kind: MentionKind }) {
+  const t = useTheme();
+  const c = t.kind[kind];
+  return (
+    <View style={[styles.kind, { backgroundColor: c.soft }]}>
+      <Ionicons name={KIND_META[kind].icon} size={15} color={c.solid} />
+      <Text style={[styles.kindText, { color: c.solid, fontFamily: t.font.sansBold }]}>
+        {KIND_META[kind].plural}
+      </Text>
+    </View>
+  );
+}
+
 export function FilterChip({
   label,
   active,
@@ -77,6 +95,17 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 12,
+  },
+  kind: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 12,
+  },
+  kindText: {
+    fontSize: 14.5,
   },
   filter: {
     paddingVertical: 7,

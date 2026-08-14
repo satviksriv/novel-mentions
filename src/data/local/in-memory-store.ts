@@ -8,7 +8,7 @@
  */
 import type { Book, Mention, UserNote } from '@/domain';
 
-import type { LocalStore } from './local-store';
+import { NO_FLAGS_SEEN, type LocalStore, type UiFlags } from './local-store';
 
 const clone = <T>(value: readonly T[]): T[] => value.map((v) => ({ ...v }));
 
@@ -16,17 +16,21 @@ export interface InitialLocalData {
   mentions?: readonly Mention[];
   notes?: readonly UserNote[];
   books?: readonly Book[];
+  /** Defaults to every cue unseen — i.e. a fresh install. */
+  uiFlags?: Partial<UiFlags>;
 }
 
 export class InMemoryLocalStore implements LocalStore {
   private mentions: Mention[];
   private notes: UserNote[];
   private books: Book[];
+  private uiFlags: UiFlags;
 
   constructor(initial: InitialLocalData = {}) {
     this.mentions = clone(initial.mentions ?? []);
     this.notes = clone(initial.notes ?? []);
     this.books = clone(initial.books ?? []);
+    this.uiFlags = { ...NO_FLAGS_SEEN, ...initial.uiFlags };
   }
 
   async getUserMentions(): Promise<Mention[]> {
@@ -51,5 +55,13 @@ export class InMemoryLocalStore implements LocalStore {
 
   async saveUserBooks(books: readonly Book[]): Promise<void> {
     this.books = clone(books);
+  }
+
+  async getUiFlags(): Promise<UiFlags> {
+    return { ...this.uiFlags };
+  }
+
+  async saveUiFlags(flags: UiFlags): Promise<void> {
+    this.uiFlags = { ...flags };
   }
 }

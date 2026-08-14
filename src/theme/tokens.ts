@@ -37,6 +37,12 @@ export const NEUTRALS = {
   text3: { light: '#A69B89', dark: '#7C7365' },
   /** App-level CTA ink (so CTAs don't compete with kind/status colours). */
   accentInk: { light: '#241D15', dark: '#F4EFE6' },
+  /**
+   * Scrim behind a popover menu — deliberately lighter than the modal scrim
+   * (`rgba(12,8,3,0.5)`, inlined at each sheet), because a menu isn't a modal.
+   * The one new colour value the onboarding handoff introduces (O4).
+   */
+  menuScrim: { light: 'rgba(12,8,3,0.28)', dark: 'rgba(0,0,0,0.42)' },
 } as const satisfies Record<string, ModeValue<string>>;
 
 /** Elevation, as a CSS-style boxShadow string (supported natively in RN 0.86). */

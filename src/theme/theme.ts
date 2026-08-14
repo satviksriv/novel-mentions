@@ -30,6 +30,7 @@ export interface Theme {
     readonly text2: string;
     readonly text3: string;
     readonly accentInk: string;
+    readonly menuScrim: string;
   };
   readonly kind: Record<MentionKind, ResolvedPair>;
   readonly status: Record<MentionStatus, ResolvedPair>;
@@ -74,6 +75,7 @@ export function resolveTheme(scheme: ColorScheme): Theme {
       text2: pick(NEUTRALS.text2, scheme),
       text3: pick(NEUTRALS.text3, scheme),
       accentInk: pick(NEUTRALS.accentInk, scheme),
+      menuScrim: pick(NEUTRALS.menuScrim, scheme),
     },
     kind: resolvePairs(KIND_COLORS, scheme),
     status: resolvePairs(STATUS_COLORS, scheme),

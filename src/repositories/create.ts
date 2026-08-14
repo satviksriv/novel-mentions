@@ -19,11 +19,14 @@ import { removeUserBookCascade } from './cascade';
 import type { RepoDeps } from './deps';
 import { MentionRepository } from './mention-repository';
 import { NoteRepository } from './note-repository';
+import { UiStateRepository } from './ui-state-repository';
 
 export interface Repositories {
   books: BookRepository;
   mentions: MentionRepository;
   notes: NoteRepository;
+  /** One-shot onboarding cues (#45) — not content. */
+  uiState: UiStateRepository;
   /**
    * Remove a user-added book and cascade-delete the reader's mentions and notes
    * for it (#34) — the coordinated path across the three repositories above.
@@ -47,11 +50,13 @@ export function createRepositories(
   const books = new BookRepository(seed, local, lookup, deps);
   const mentions = new MentionRepository(seed, local, remote, deps);
   const notes = new NoteRepository(local, deps);
+  const uiState = new UiStateRepository(local);
 
   return {
     books,
     mentions,
     notes,
+    uiState,
     removeUserBook: (bookId) => removeUserBookCascade({ books, mentions, notes }, bookId),
   };
 }
