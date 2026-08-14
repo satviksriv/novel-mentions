@@ -21,12 +21,18 @@ import {
   type UserNote,
 } from '@/domain';
 
-import type { LocalStore } from './local-store';
+import {
+  NO_FLAGS_SEEN,
+  UI_FLAGS,
+  type LocalStore,
+  type UiFlags,
+} from './local-store';
 
 const KEYS = {
   mentions: 'nm.userMentions',
   notes: 'nm.userNotes',
   books: 'nm.userBooks',
+  uiFlags: 'nm.uiFlags',
 } as const;
 
 /** Read a JSON array under `key`, keeping only records that re-validate. */
@@ -74,5 +80,32 @@ export class AsyncStorageLocalStore implements LocalStore {
 
   saveUserBooks(books: readonly Book[]): Promise<void> {
     return write(KEYS.books, books);
+  }
+
+  /**
+   * Flags read defensively: a missing key, corrupt JSON, or a non-boolean value
+   * all fall back to "not yet seen". Erring toward showing a cue again is the
+   * harmless direction — erring the other way would silently swallow onboarding.
+   */
+  async getUiFlags(): Promise<UiFlags> {
+    const raw = await AsyncStorage.getItem(KEYS.uiFlags);
+    if (!raw) return { ...NO_FLAGS_SEEN };
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return { ...NO_FLAGS_SEEN };
+    }
+    if (typeof parsed !== 'object' || parsed === null) return { ...NO_FLAGS_SEEN };
+    const stored = parsed as Record<string, unknown>;
+    const flags = { ...NO_FLAGS_SEEN };
+    for (const flag of UI_FLAGS) {
+      if (stored[flag] === true) flags[flag] = true;
+    }
+    return flags;
+  }
+
+  saveUiFlags(flags: UiFlags): Promise<void> {
+    return AsyncStorage.setItem(KEYS.uiFlags, JSON.stringify(flags));
   }
 }

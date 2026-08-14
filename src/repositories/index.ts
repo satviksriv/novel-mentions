@@ -12,6 +12,8 @@ export {
   type MentionPatch,
 } from './mention-repository';
 export { NoteRepository, type DraftNote } from './note-repository';
+export { UiStateRepository } from './ui-state-repository';
+export type { UiFlag, UiFlags } from '@/data/local/local-store';
 export { removeUserBookCascade, type CascadeRepos } from './cascade';
 export type { RepoDeps } from './deps';
 export { createRepositories, type Repositories } from './create';

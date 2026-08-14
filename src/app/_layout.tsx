@@ -18,9 +18,10 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useCallback } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { FirstRunGate } from '@/components/FirstRunGate';
 import { RepositoriesProvider } from '@/repositories';
 import { ThemeProvider, useTheme } from '@/theme';
 
@@ -47,9 +48,18 @@ function NavigationChrome() {
       <Stack
         screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.color.bg } }}
       />
-      <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
     </NavThemeProvider>
   );
+}
+
+/**
+ * Status-bar style, hoisted out of NavigationChrome so it also applies while the
+ * welcome pager is up (the pager renders instead of the navigator, and its canvas
+ * is the same `bg`, so it wants the same treatment).
+ */
+function AppStatusBar() {
+  const t = useTheme();
+  return <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />;
 }
 
 export default function RootLayout() {
@@ -66,11 +76,13 @@ export default function RootLayout() {
     HankenGrotesk_700Bold,
   });
 
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
+  // The splash now comes down in two stages: fonts must resolve before anything
+  // renders (below), then FirstRunGate reports once it knows whether this launch
+  // opens in the welcome pager. Hiding earlier would flash the Library behind a
+  // pager about to cover it.
+  const hideSplash = useCallback(() => {
+    SplashScreen.hideAsync();
+  }, []);
 
   // Hold on the splash until fonts resolve (or fail) so text never flashes in a fallback face.
   if (!fontsLoaded && !fontError) {
@@ -81,7 +93,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider>
         <RepositoriesProvider>
-          <NavigationChrome />
+          <FirstRunGate onReady={hideSplash}>
+            <NavigationChrome />
+          </FirstRunGate>
+          <AppStatusBar />
         </RepositoriesProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

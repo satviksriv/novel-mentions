@@ -1,10 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import { BookCover } from '@/components/BookCover';
+import { CoachMark } from '@/components/CoachMark';
 import { FilterChip } from '@/components/Chips';
 import { confirmRemoveBook } from '@/components/confirm-remove-book';
 import { MentionSheet } from '@/components/MentionSheet';
@@ -101,13 +102,29 @@ function BookDetailLoaded({
   // null = note sheet closed; { note } = edit; {} = add a new book-level note.
   const [noteSheet, setNoteSheet] = useState<{ note?: UserNote } | null>(null);
   const [notesExpanded, setNotesExpanded] = useState(false);
+
+  // One-time nudge toward the FAB, the first time any book is opened (handoff O3).
+  const [showFabTip, setShowFabTip] = useState(false);
+  const { data: flags } = useAsync(() => repos.uiState.flags(), [repos]);
+  useEffect(() => {
+    if (flags?.welcomeSeen && !flags.fabTipSeen) setShowFabTip(true);
+  }, [flags]);
+
+  const dismissFabTip = useCallback(() => {
+    setShowFabTip(false);
+    void repos.uiState.markSeen('fabTipSeen');
+  }, [repos]);
   const filterKinds = useMemo(() => deriveFilterKinds(mentions), [mentions]);
   const groups = useMemo(() => {
     const visible = filter === 'all' ? mentions : mentions.filter((m) => m.kind === filter);
     return groupByChapter(visible);
   }, [mentions, filter]);
 
-  const handleLogMention = () => setLogging(true);
+  const handleLogMention = () => {
+    // Using the FAB teaches the tip's lesson, so it retires the cue too.
+    if (showFabTip) dismissFabTip();
+    setLogging(true);
+  };
 
   // Remove is offered only for user-added books (#34); seed books are bundled.
   const canRemove = book.origin === 'user';
@@ -279,6 +296,20 @@ function BookDetailLoaded({
           </>
         )}
       </ScrollView>
+
+      {/* FAB tip (handoff O3) — floats above the FAB, pointing down at it. */}
+      {showFabTip && (
+        <View style={[styles.fabTip, { bottom: insets.bottom + t.spacing.lg + 56 + t.spacing.sm }]}>
+          <CoachMark
+            pointer="down"
+            pointerAlign="end"
+            icon="add-circle-outline"
+            title="Spot one we missed?"
+            body="Tap + to log a mention and add it to this book."
+            onDismiss={dismissFabTip}
+          />
+        </View>
+      )}
 
       {/* FAB — log a mention (sheet lands in #9). */}
       <Pressable
@@ -591,6 +622,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Width per O3 (~214), right-aligned to sit over the FAB.
+  fabTip: { position: 'absolute', right: 24, width: 214 },
   cta: { marginTop: 8, paddingHorizontal: 22, paddingVertical: 13 },
   // Pinned book-notes card (radius 14 matches the search field / segmented
   // track — a design value with no named radius token).

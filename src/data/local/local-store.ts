@@ -13,6 +13,24 @@
  */
 import type { Book, Mention, UserNote } from '@/domain';
 
+/**
+ * One-shot UI cues, tracked so they're shown once and then never again
+ * (onboarding handoff O1/O3). Not domain content — pure client state, which is
+ * why these live beside the collections rather than in `@/domain`.
+ */
+export const UI_FLAGS = ['welcomeSeen', 'libraryTipSeen', 'fabTipSeen'] as const;
+
+export type UiFlag = (typeof UI_FLAGS)[number];
+
+/** Every flag, defaulted to false — an unseen cue and a missing key are the same thing. */
+export type UiFlags = Record<UiFlag, boolean>;
+
+export const NO_FLAGS_SEEN: UiFlags = {
+  welcomeSeen: false,
+  libraryTipSeen: false,
+  fabTipSeen: false,
+};
+
 export interface LocalStore {
   getUserMentions(): Promise<Mention[]>;
   saveUserMentions(mentions: readonly Mention[]): Promise<void>;
@@ -22,4 +40,7 @@ export interface LocalStore {
 
   getUserBooks(): Promise<Book[]>;
   saveUserBooks(books: readonly Book[]): Promise<void>;
+
+  getUiFlags(): Promise<UiFlags>;
+  saveUiFlags(flags: UiFlags): Promise<void>;
 }

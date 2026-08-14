@@ -1,9 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Link, useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,12 +15,16 @@ import {
 import { Swipeable } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AboutSheet } from '@/components/AboutSheet';
 import { AddBookSheet } from '@/components/AddBookSheet';
 import { BookCover } from '@/components/BookCover';
 import { CountChip } from '@/components/Chips';
+import { CoachMark } from '@/components/CoachMark';
 import { confirmRemoveBook } from '@/components/confirm-remove-book';
+import { WelcomePager } from '@/components/WelcomePager';
 import type { Book, Mention } from '@/domain';
 import { useAsync } from '@/hooks/use-async';
+import { useStarterShelf } from '@/hooks/use-starter-shelf';
 import { useRepositories } from '@/repositories';
 import { useBookPalette, useTheme } from '@/theme';
 import { SectionBand } from '@/components/SectionBand';
@@ -49,6 +54,25 @@ export default function Library() {
   const [query, setQuery] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
   const reload = useCallback(() => setReloadKey((k) => k + 1), []);
+
+  // Onboarding surfaces (#45): the ⋯ menu, its two destinations, and the
+  // one-time Library tip.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [replayWelcome, setReplayWelcome] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [showTip, setShowTip] = useState(false);
+  const { starters } = useStarterShelf(replayWelcome);
+
+  // The tip waits for the welcome to be done with, so only one cue is ever up.
+  const { data: flags } = useAsync(() => repos.uiState.flags(), [repos]);
+  useEffect(() => {
+    if (flags?.welcomeSeen && !flags.libraryTipSeen) setShowTip(true);
+  }, [flags]);
+
+  const dismissTip = useCallback(() => {
+    setShowTip(false);
+    void repos.uiState.markSeen('libraryTipSeen');
+  }, [repos]);
 
   // Remove a user-added book (#34): confirm, cascade-delete via the coordinated
   // repository path, then reload so the card disappears.
@@ -124,17 +148,29 @@ export default function Library() {
             <Text style={[t.type.screenTitle, { color: t.color.text }]}>Library</Text>
             <Text style={[t.type.subline, { color: t.color.text2 }]}>{data?.subline ?? ' '}</Text>
           </View>
-          <Pressable
-            onPress={() => setAdding(true)}
-            hitSlop={8}
-            accessibilityLabel="Add a book"
-            style={({ pressed }) => [
-              styles.addBtn,
-              { backgroundColor: t.color.accentInk, borderRadius: t.radius.pill, opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Ionicons name="add" size={22} color={t.color.bg} />
-          </Pressable>
+          <View style={styles.headerActions}>
+            <Pressable
+              onPress={() => setAdding(true)}
+              hitSlop={8}
+              accessibilityLabel="Add a book"
+              style={({ pressed }) => [
+                styles.addBtn,
+                { backgroundColor: t.color.accentInk, borderRadius: t.radius.pill, opacity: pressed ? 0.85 : 1 },
+              ]}
+            >
+              <Ionicons name="add" size={22} color={t.color.bg} />
+            </Pressable>
+            {/* ⋯ — the app has no settings screen, so this is where the welcome
+                is re-viewable from (handoff O2/O4). */}
+            <Pressable
+              onPress={() => setMenuOpen(true)}
+              hitSlop={12}
+              accessibilityLabel="Library options"
+              style={({ pressed }) => [styles.menuBtn, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Ionicons name="ellipsis-horizontal" size={22} color={t.color.text2} />
+            </Pressable>
+          </View>
         </View>
 
         {/* Search field — matches books and mentions (#14 / handoff A3). */}
@@ -156,6 +192,19 @@ export default function Library() {
             </Pressable>
           )}
         </View>
+
+        {/* One-time nudge toward the starter books (handoff O3). Sits under the
+            search field, pointing up at it, and never returns once dismissed. */}
+        {showTip && !searching && (
+          <CoachMark
+            pointer="up"
+            pointerAlign="start"
+            icon="sparkles-outline"
+            title="Start with a book"
+            body="Open a book to explore its mentions — start with Gatsby or Perks, they're already catalogued."
+            onDismiss={dismissTip}
+          />
+        )}
 
         {loading && <ActivityIndicator color={t.color.text3} style={{ marginTop: t.spacing.xl }} />}
 
@@ -200,6 +249,67 @@ export default function Library() {
           }}
         />
       )}
+
+      {/* ⋯ menu (handoff O4). A lighter scrim than the modal one — this is a
+          menu, not a full modal. */}
+      {menuOpen && (
+        <Modal transparent visible animationType="fade" onRequestClose={() => setMenuOpen(false)}>
+          <Pressable
+            style={[styles.menuScrim, { backgroundColor: t.color.menuScrim }]}
+            onPress={() => setMenuOpen(false)}
+          />
+          <View
+            style={[
+              styles.menuCard,
+              {
+                top: insets.top + 56,
+                backgroundColor: t.color.surface,
+                borderColor: t.color.border,
+                boxShadow: '0px 8px 30px rgba(0,0,0,0.18)',
+              },
+            ]}
+          >
+            <Pressable
+              onPress={() => {
+                setMenuOpen(false);
+                setReplayWelcome(true);
+              }}
+              style={({ pressed }) => [
+                styles.menuItem,
+                styles.menuItemDivider,
+                { borderBottomColor: t.color.line, opacity: pressed ? 0.6 : 1 },
+              ]}
+            >
+              <Ionicons name="help-circle-outline" size={19} color={t.color.text2} />
+              <Text style={[styles.menuLabel, { fontFamily: t.font.sansMedium, color: t.color.text }]}>
+                How Novel Mentions works
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                setMenuOpen(false);
+                setAboutOpen(true);
+              }}
+              style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              <Ionicons name="information-circle-outline" size={19} color={t.color.text2} />
+              <Text style={[styles.menuLabel, { fontFamily: t.font.sansMedium, color: t.color.text }]}>
+                About Novel Mentions
+              </Text>
+            </Pressable>
+          </View>
+        </Modal>
+      )}
+
+      {/* Replay of the welcome. Marks nothing — the coach-mark flags stay as they
+          are, so re-reading the intro doesn't re-trigger the in-place tips. */}
+      {replayWelcome && (
+        <Modal transparent={false} visible animationType="slide" onRequestClose={() => setReplayWelcome(false)}>
+          <WelcomePager starters={starters} onDone={() => setReplayWelcome(false)} />
+        </Modal>
+      )}
+
+      {aboutOpen && <AboutSheet onClose={() => setAboutOpen(false)} />}
     </>
   );
 }
@@ -461,7 +571,29 @@ function NoMatches({ query, onAddBook }: { query: string; onAddBook: () => void 
 
 const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  headerActions: { flexDirection: 'row', alignItems: 'flex-start', gap: 4 },
   addBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  menuBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
+  // ⋯ popover (handoff O4).
+  menuScrim: { flex: 1 },
+  menuCard: {
+    position: 'absolute',
+    right: 20,
+    minWidth: 224,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 6,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 11,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  menuItemDivider: { borderBottomWidth: 1 },
+  menuLabel: { fontSize: 14 },
   search: {
     height: 44,
     flexDirection: 'row',

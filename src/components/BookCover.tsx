@@ -11,11 +11,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { Book } from '@/domain';
 import { useTheme } from '@/theme';
 
-/** Cover footprints from the handoff (radius 9; mini radius 6). */
+/** Cover footprints from the handoff (radius 9; mini radius 6; welcome radius 11). */
 const SIZES = {
   card: { width: 76, height: 108, radius: 9 },
   header: { width: 66, height: 94, radius: 9 },
   mini: { width: 42, height: 60, radius: 6 },
+  /** The starter-shelf covers on onboarding beat 3 (handoff O1). */
+  welcome: { width: 118, height: 168, radius: 11 },
 } as const;
 
 export type BookCoverSize = keyof typeof SIZES;
