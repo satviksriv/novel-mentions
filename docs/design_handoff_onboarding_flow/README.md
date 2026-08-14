@@ -11,11 +11,15 @@ The codebase **forbids hard-coded hex values and sizes in screens**: everything 
 ## Files in this bundle
 - **README.md** — this document. Self-sufficient: the full onboarding spec follows below.
 - **Onboarding.dc.html** — visual reference for the *new* onboarding work (all beats + states, light & dark). Prototype only.
-- **base-system/Novel Mentions.dc.html** — the *existing* shipped screens (Library, Book detail, Mention detail, Log sheet, My stuff) this feature extends. Reference for shared components and the on-canvas token panels.
-- **base-system/README.md** — the original design-system handoff: the authoritative token layer (neutrals, kind/status/per-book palettes, type, spacing, radii). **The onboarding spec reuses these tokens; read it for any token not redefined here.**
+- **[../design_handoff_novel_mentions/Novel Mentions.dc.html](../design_handoff_novel_mentions/Novel%20Mentions.dc.html)** — the *existing* shipped screens (Library, Book detail, Mention detail, Log sheet, My stuff) this feature extends. Reference for shared components and the on-canvas token panels.
+- **[../design_handoff_novel_mentions/README.md](../design_handoff_novel_mentions/README.md)** — the original design-system handoff: the authoritative token layer (neutrals, kind/status/per-book palettes, type, spacing, radii). **The onboarding spec reuses these tokens; read it for any token not redefined here.**
+
+> The delivered bundle carried its own copy of those two base-system files. They
+> were byte-identical to the originals already in the repo, so the copies were
+> dropped and these links repointed — one source of truth per document.
 
 ## How to use this package
-1. Read `base-system/README.md` to load the token layer and shared components.
+1. Read [../design_handoff_novel_mentions/README.md](../design_handoff_novel_mentions/README.md) to load the token layer and shared components.
 2. Read the onboarding spec below and open `Onboarding.dc.html` alongside it for the visuals.
 3. Implement against the existing token layer — the spec adds **no new colour/type/radius tokens** (one new scrim value and three boolean state flags are the only additions, both flagged).
 
