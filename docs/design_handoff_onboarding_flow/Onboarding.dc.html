@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#e7e2d9;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#b0447a;text-decoration:none}a:hover{color:#8e3462}
+.page{padding:52px 60px 140px}
+.hero{max-width:820px;margin-bottom:16px}
+.hero .ey{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a2917c}
+.hero h1{font-family:'Newsreader',serif;font-weight:600;font-size:46px;line-height:1.02;letter-spacing:-.015em;color:#241d15;margin:8px 0 12px}
+.hero p{font-size:15.5px;line-height:1.55;color:#5f5749;margin:0}
+.hero p b{color:#3a3126}
+.seclab{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a2917c;margin:54px 0 2px}
+.sectitle{font-family:'Newsreader',serif;font-size:27px;font-weight:600;color:#241d15;margin:0 0 4px}
+.secsub{font-size:13.5px;color:#6b6355;margin:0 0 22px;max-width:680px;line-height:1.5}
+.screenrow{display:flex;gap:38px;flex-wrap:wrap;align-items:flex-start}
+.unit{display:flex;flex-direction:column;gap:11px}
+.modelbl{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#6b6355}
+.modelbl .dot{width:8px;height:8px;border-radius:50%}
+.modelbl .dot.l{background:#d9d2c6;border:1px solid #b9b1a2}
+.modelbl .dot.d{background:#241d15}
+.caption{font-size:12px;color:#8a8074;max-width:340px;line-height:1.45;margin-top:2px}
+
+/* ===== PHONE FRAME ===== */
+.phone{width:388px;background:#0c0c0f;border-radius:52px;padding:10px;box-shadow:0 34px 70px -26px rgba(30,20,8,.5),0 10px 26px rgba(30,20,8,.16)}
+.scr{position:relative;width:100%;height:812px;border-radius:43px;overflow:hidden;background:var(--bg);color:var(--text);font-size:15px;line-height:1.4}
+.island{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:112px;height:31px;background:#0c0c0f;border-radius:18px;z-index:60}
+.home{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:132px;height:5px;border-radius:3px;background:var(--text);opacity:.28;z-index:55}
+.sb{position:absolute;top:0;left:0;right:0;height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 7px;font-size:14.5px;font-weight:600;color:var(--text);z-index:40}
+.sb .r{display:flex;align-items:center;gap:6px}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:82px;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:9px 0 24px;z-index:45}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--text3)}
+.tab.on{color:var(--accent-ink)}
+.fab{position:absolute;right:24px;width:56px;height:56px;border-radius:19px;background:var(--bk-fab);color:#fff;display:grid;place-items:center;z-index:44;box-shadow:0 12px 24px -6px var(--bk-fab)}
+.fab svg{display:block}
+.body{position:absolute;top:52px;left:0;right:0;bottom:0;overflow:hidden}
+.scroll{height:100%;overflow:hidden;padding:4px 20px 0}
+
+/* ===== THEME TOKENS ===== */
+.light{--bg:#FAF7F1;--surface:#FFFFFF;--surface2:#F1ECE2;--border:#E7E0D4;--line:#EFE9DE;--text:#211C15;--text2:#6C6355;--text3:#A69B89;--accent-ink:#241d15;--shadow:0 1px 2px rgba(40,28,12,.06),0 8px 20px rgba(40,28,12,.05);
+--song:#0E9C9C;--song-bg:#D6F1F0;--movie:#E15A38;--movie-bg:#FBE4DC;--quote:#C4890F;--quote-bg:#F6EBD1;--book:#7A5AD6;--book-bg:#E9E2FB;--place:#2E6FDB;--place-bg:#DDE8FB;--other:#8A8074;--other-bg:#ECE6DC}
+.dark{--bg:#141109;--surface:#201B13;--surface2:#2A241B;--border:#39322A;--line:#2C271F;--text:#F4EFE6;--text2:#B4AB9B;--text3:#7C7365;--accent-ink:#F4EFE6;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 24px rgba(0,0,0,.4);
+--song:#33C7C7;--song-bg:#0F3130;--movie:#FF7E5C;--movie-bg:#3A241D;--quote:#EFBB4D;--quote-bg:#392D13;--book:#A78BF2;--book-bg:#29203F;--place:#5C93F0;--place-bg:#15233F;--other:#A79C8D;--other-bg:#2B271F}
+.perks{--bk-header:#D6397B;--bk-on:#fff;--bk-accent:#D6397B;--bk-fab:#D6397B}
+.light.perks{--bk-soft:#FBE1EC}.dark.perks{--bk-soft:#3A1526}
+.gatsby{--bk-header:#1E8A5A;--bk-on:#fff;--bk-accent:#1E8A5A;--bk-fab:#1E8A5A}
+.light.gatsby{--bk-soft:#DEF0E7}.dark.gatsby{--bk-soft:#0F3324}
+
+.k-song{--k:var(--song);--k-bg:var(--song-bg)}
+.k-movie{--k:var(--movie);--k-bg:var(--movie-bg)}
+.k-quote{--k:var(--quote);--k-bg:var(--quote-bg)}
+.k-book{--k:var(--book);--k-bg:var(--book-bg)}
+.k-place{--k:var(--place);--k-bg:var(--place-bg)}
+.k-other{--k:var(--other);--k-bg:var(--other-bg)}
+
+/* ===== LIBRARY / SHARED COMPONENTS (from base system) ===== */
+.h1{font-family:'Newsreader',serif;font-weight:600;font-size:30px;letter-spacing:-.01em;margin:8px 0 2px;color:var(--text)}
+.subline{color:var(--text2);font-size:13px;margin:0 0 4px}
+.search{margin:14px 0 2px;height:44px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--text3);font-size:15px}
+.bcard{display:flex;gap:15px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);margin-top:14px}
+.cover{width:76px;height:108px;border-radius:9px;flex:none;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:9px;color:#fff}
+.cover:before{content:"";position:absolute;left:9px;top:0;bottom:0;width:3px;background:rgba(0,0,0,.16)}
+.cover .ct{font-family:'Newsreader',serif;font-weight:600;font-size:13px;line-height:1.05;position:relative}
+.cover .ca{font-size:8.5px;opacity:.82;margin-top:4px;position:relative;letter-spacing:.03em;text-transform:uppercase}
+.bmeta{flex:1;min-width:0}
+.bmeta .bt{font-family:'Newsreader',serif;font-weight:600;font-size:18.5px;line-height:1.12;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bmeta .ba{font-size:12.5px;color:var(--text2);margin-top:2px}
+.counts{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.kc{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--k);background:var(--k-bg);padding:3px 8px 3px 6px;border-radius:8px}
+.kc svg{display:block}
+.chips{display:flex;gap:8px;padding:2px 0}
+.chip{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;background:var(--surface2);color:var(--text2);border:1px solid var(--border);white-space:nowrap}
+.chip.on{background:var(--bk-accent);color:#fff;border-color:transparent}
+.chap{display:flex;align-items:center;gap:10px;margin:16px 2px 2px}
+.chap .lbl{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3)}
+.chap .ln{flex:1;height:1px;background:var(--border)}
+.mrow{display:flex;gap:12px;padding:13px 2px;align-items:flex-start;border-bottom:1px solid var(--line)}
+.ki{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;background:var(--k-bg);color:var(--k)}
+.ki.q{font-family:'Newsreader',serif;font-size:24px;line-height:0;padding-top:10px;font-style:italic}
+.mmain{flex:1;min-width:0}
+.mtitle{font-weight:600;font-size:15px;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mattr{font-size:12.5px;color:var(--text2);margin-top:1px}
+.mwhy{font-size:12.5px;color:var(--text3);margin-top:5px;line-height:1.38}
+.chev{color:var(--text3);flex:none;padding-top:8px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.bhead{background:var(--bk-header);color:var(--bk-on);padding:6px 20px 20px;position:relative}
+.bhead .navr{display:flex;align-items:center;justify-content:space-between;height:44px}
+.bhead .bk{width:30px;height:30px;display:grid;place-items:center;color:var(--bk-on)}
+.bhead .brow{display:flex;gap:15px;align-items:flex-end;margin-top:8px}
+.bhead .ct{font-family:'Newsreader',serif;font-weight:600;font-size:23px;line-height:1.06}
+.bhead .ca{font-size:13px;opacity:.9;margin-top:4px}
+.bhead .tot{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+
+/* ===== NEW: ONBOARDING PATTERNS ===== */
+/* Welcome pager */
+.onb{position:absolute;top:52px;left:0;right:0;bottom:0;display:flex;flex-direction:column;padding:8px 24px 30px}
+.otop{display:flex;justify-content:flex-end;align-items:center;height:34px}
+.skip{font-size:14px;font-weight:600;color:var(--text2)}
+.oart{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.oeyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.otitle{font-family:'Newsreader',serif;font-weight:600;font-size:30px;line-height:1.05;letter-spacing:-.01em;color:var(--text);margin:0 0 12px}
+.obody{font-size:15.5px;line-height:1.55;color:var(--text2);margin:0}
+.obody b{color:var(--text);font-weight:600}
+.ofoot{margin-top:24px}
+.dots{display:flex;gap:7px;align-items:center;margin-bottom:18px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--text3);opacity:.45}
+.dots i.on{opacity:1;width:22px;border-radius:4px;background:var(--accent-ink)}
+.nextrow{display:flex;justify-content:flex-end}
+.nextbtn{width:52px;height:52px;border-radius:50%;background:var(--accent-ink);color:var(--bg);display:grid;place-items:center}
+.wcta{width:100%;height:52px;border-radius:16px;background:var(--accent-ink);color:var(--bg);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
+.wsub{width:100%;text-align:center;margin-top:14px;font-size:14px;font-weight:600;color:var(--text2)}
+.wfoot{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;color:var(--text3);text-align:center;margin-top:16px;line-height:1.4}
+/* Beat 1 kind grid */
+.kindgrid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:294px}
+.kbig{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:700;color:var(--k);background:var(--k-bg);padding:9px 14px;border-radius:12px}
+.kbig svg{display:block}
+/* Beat 2 feature rows */
+.feats{display:flex;flex-direction:column;gap:22px;width:100%}
+.feat{display:flex;gap:15px;align-items:flex-start}
+.feat .fi{width:46px;height:46px;border-radius:13px;flex:none;display:grid;place-items:center;background:var(--surface2);color:var(--text)}
+.feat .ft{font-weight:600;font-size:16px;color:var(--text)}
+.feat .fd{font-size:13.5px;color:var(--text2);margin-top:3px;line-height:1.44}
+/* Beat 3 starter shelf */
+.shelf{display:flex;gap:20px;justify-content:center}
+.scol{display:flex;flex-direction:column;align-items:center;gap:10px;width:118px}
+.scover{width:118px;height:168px;border-radius:11px;position:relative;overflow:hidden;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:12px}
+.scover:before{content:"";position:absolute;left:11px;top:0;bottom:0;width:3px;background:rgba(0,0,0,.16)}
+.scover .ct{font-family:'Newsreader',serif;font-weight:600;font-size:15px;line-height:1.06;position:relative}
+.scover .ca{font-size:9px;opacity:.85;margin-top:5px;position:relative;letter-spacing:.03em;text-transform:uppercase}
+.incband{position:absolute;top:9px;left:9px;font-size:8.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:rgba(255,255,255,.92);color:#3a2f22;padding:3px 6px;border-radius:5px}
+.scnt{display:flex;gap:5px}
+/* Library: "included" section + tag */
+.htop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.ovbtn{width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;color:var(--text2);margin-top:8px}
+.inctag{display:inline-flex;align-items:center;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);background:var(--surface2);padding:3px 7px;border-radius:6px}
+/* Coach-mark tip (one-time contextual cue) */
+.tip{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:13px 15px;margin-top:13px}
+.tip .tt{font-size:14px;font-weight:600;color:var(--text);line-height:1.4;display:flex;align-items:center;gap:8px}
+.tip .td{font-size:12.5px;color:var(--text2);margin-top:3px;line-height:1.42}
+.tip .tgot{margin-top:10px;font-size:13px;font-weight:700;color:var(--accent-ink)}
+.tip .arrow{position:absolute;width:15px;height:15px;background:var(--surface);border-left:1px solid var(--border);border-top:1px solid var(--border);transform:rotate(45deg)}
+.tip .sparkle{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;background:var(--surface2);color:var(--text2)}
+.tipfab{position:absolute;right:22px;bottom:34px;width:214px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:13px 15px;z-index:46}
+.tipfab .arrow{position:absolute;right:22px;bottom:-8px;width:15px;height:15px;background:var(--surface);border-right:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg)}
+/* Overflow menu (revisit) */
+.ovmenu{position:absolute;top:98px;right:18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.18);padding:6px;min-width:224px;z-index:47}
+.ovitem{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--text)}
+.ovitem svg{color:var(--text2);flex:none}
+.ovmenu .div{height:1px;background:var(--line);margin:4px 8px}
+.dimmer{position:absolute;inset:0;background:rgba(12,8,3,.28);z-index:20}
+.dark .dimmer{background:rgba(0,0,0,.42)}
+
+/* ===== SPEC PANELS ===== */
+.panels{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:6px}
+.panel{background:#fff;border:1px solid rgba(40,28,12,.1);border-radius:18px;padding:26px 28px;box-shadow:0 1px 2px rgba(40,28,12,.05)}
+.panel.wide{flex:1;min-width:560px}
+.panel h4{font-family:'Newsreader',serif;font-size:19px;font-weight:600;margin:0 0 3px;color:#241d15}
+.panel .pd{font-size:12.5px;color:#6b6355;margin:0 0 18px;line-height:1.5}
+.trow{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:9px 0;border-bottom:1px solid #efe9de}
+.trow:last-child{border-bottom:0}
+.trow .tn{font-size:13px;color:#241d15;font-weight:600}
+.trow .tn small{display:block;font-weight:400;color:#8a8074;font-size:11.5px;margin-top:2px;max-width:300px;line-height:1.4}
+.trow .tv{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#8a8074;text-align:right;white-space:nowrap}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:#ece6dc;color:#6b6355}
+.pill.new{background:#e9e2fb;color:#5a3fb0}
+.note-block{background:#faf7f1;border:1px solid #eee7db;border-radius:12px;padding:16px 18px;font-size:13px;line-height:1.55;color:#3a3126;max-width:560px}
+.note-block b{color:#241d15}
+</style>
+</helmet>
+
+<div class="page">
+
+<div class="hero">
+<div class="ey">Novel Mentions · Addendum 05 — First-run / onboarding</div>
+<h1>Onboarding</h1>
+<p>Everything a reader sees before the Library. A <b>short welcome</b> (three swipeable beats) sets up what the app is and hands off into the real Library — where the two curated books are clearly framed as <b>ours</b>, and one-time contextual cues teach the rest in place. Built entirely from the <b>existing neutral + accent-ink layer — no new colours</b>, so the kind and status palettes keep meaning what they already mean. Light &amp; dark below, plus the token map for handoff.</p>
+</div>
+
+<div class="note-block">
+<b>Why not a full carousel?</b> A five-slide carousel front-loads every feature before the reader has touched anything real, then dumps them into an empty-feeling app. This keeps the intro to three beats (idea → what you can do → the books you already have), then teaches browsing, notes and logging with lightweight one-time cues on the actual screens. Skippable, and re-openable any time from the Library's <b>⋯</b> menu.
+</div>
+
+<!-- ============ BEATS 01–03 ============ -->
+<div class="seclab">Flow 01 · Welcome</div>
+<h2 class="sectitle">Three beats, then the Library</h2>
+<p class="secsub">A paged welcome (swipe or tap →). "Skip" on beats 1–2 jumps straight to the Library. Full-bleed neutral canvas, serif titles — the same type and colour system as every other screen, just with room to breathe.</p>
+
+<div class="screenrow">
+
+<!-- BEAT 1 LIGHT -->
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Beat 1 · What it is · Light</div>
+<div class="phone"><div class="scr light">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="onb">
+<div class="otop"><span class="skip">Skip</span></div>
+<div class="oart"><div class="kindgrid">
+<span class="kbig k-song"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>Songs</span>
+<span class="kbig k-movie"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>Movies</span>
+<span class="kbig k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:17px;line-height:.4">“</span>Quotes</span>
+<span class="kbig k-book"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>Books</span>
+<span class="kbig k-place"><svg width="12" height="13" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>Places</span>
+<span class="kbig k-other"><svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3.2"/></svg>Other</span>
+</div></div>
+<div class="ocopy">
+<div class="oeyebrow">Welcome</div>
+<h2 class="otitle">Every book is full of other books.</h2>
+<p class="obody">Novel Mentions catalogs the <b>songs, movies, quotes, places and books</b> an author reaches for — where each one lands, and why it's there.</p>
+</div>
+<div class="ofoot">
+<div class="dots"><i class="on"></i><i></i><i></i></div>
+<div class="nextrow"><div class="nextbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<!-- BEAT 2 LIGHT -->
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Beat 2 · What you can do · Light</div>
+<div class="phone"><div class="scr light">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="onb">
+<div class="otop"><span class="skip">Skip</span></div>
+<div class="oart"><div class="feats">
+<div class="feat"><span class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="16" height="2.4" rx="1.2"/><rect x="4" y="10.8" width="16" height="2.4" rx="1.2"/><rect x="4" y="16.6" width="11" height="2.4" rx="1.2"/></svg></span><div><div class="ft">Browse curated mentions</div><div class="fd">Every reference in reading order, grouped by chapter, filterable by kind.</div></div></div>
+<div class="feat"><span class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4.5" y="4.5" width="15" height="15" rx="3" stroke="currentColor" stroke-width="2"/><rect x="8" y="9" width="8" height="1.9" rx="1" fill="currentColor"/><rect x="8" y="13" width="5" height="1.9" rx="1" fill="currentColor"/></svg></span><div><div class="ft">Keep private notes</div><div class="fd">On a single mention, or on a whole book. Only you ever see them.</div></div></div>
+<div class="feat"><span class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="11" y="4" width="2" height="16" rx="1"/><rect x="4" y="11" width="16" height="2" rx="1"/></svg></span><div><div class="ft">Log what you spot — and add books</div><div class="fd">Catch a reference we missed? Log it. Add any book to build your own library.</div></div></div>
+</div></div>
+<div class="ocopy">
+<div class="oeyebrow">Yours to build on</div>
+<h2 class="otitle">Read deeper, add your own.</h2>
+<p class="obody">Follow what a book is made of — then make it yours.</p>
+</div>
+<div class="ofoot">
+<div class="dots"><i></i><i class="on"></i><i></i></div>
+<div class="nextrow"><div class="nextbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<!-- BEAT 3 LIGHT -->
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Beat 3 · The starter shelf · Light</div>
+<div class="phone"><div class="scr light">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="onb">
+<div class="otop"></div>
+<div class="oart"><div class="shelf">
+<div class="scol"><div class="scover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="incband">Included</span><span class="ct">The Great Gatsby</span><span class="ca">Fitzgerald</span></div>
+<div class="scnt"><span class="kc k-song" style="padding:2px 6px">2</span><span class="kc k-quote" style="padding:2px 6px">4</span><span class="kc k-place" style="padding:2px 6px">3</span></div></div>
+<div class="scol"><div class="scover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="incband">Included</span><span class="ct">The Perks of Being a Wallflower</span><span class="ca">Chbosky</span></div>
+<div class="scnt"><span class="kc k-song" style="padding:2px 6px">5</span><span class="kc k-movie" style="padding:2px 6px">2</span><span class="kc k-quote" style="padding:2px 6px">3</span></div></div>
+</div></div>
+<div class="ocopy">
+<div class="oeyebrow">On us</div>
+<h2 class="otitle">Two books, already catalogued.</h2>
+<p class="obody"><b>Gatsby</b> and <b>Perks</b> come with the app — 21 mentions ready to explore. A starting point on us; add your own books whenever you like.</p>
+</div>
+<div class="ofoot">
+<div class="dots"><i></i><i></i><i class="on"></i></div>
+<div class="wcta">Open the Library<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="wfoot"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M5.2 7V5.4a2.8 2.8 0 0 1 5.6 0V7" stroke="currentColor" stroke-width="1.6"/></svg>Everything stays on your device. No account, nothing to sign up for.</div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- Dark beats -->
+<div class="screenrow" style="margin-top:34px">
+
+<!-- BEAT 1 DARK -->
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Beat 1 · Dark</div>
+<div class="phone"><div class="scr dark">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="onb">
+<div class="otop"><span class="skip">Skip</span></div>
+<div class="oart"><div class="kindgrid">
+<span class="kbig k-song"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>Songs</span>
+<span class="kbig k-movie"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>Movies</span>
+<span class="kbig k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:17px;line-height:.4">“</span>Quotes</span>
+<span class="kbig k-book"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>Books</span>
+<span class="kbig k-place"><svg width="12" height="13" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>Places</span>
+<span class="kbig k-other"><svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3.2"/></svg>Other</span>
+</div></div>
+<div class="ocopy">
+<div class="oeyebrow">Welcome</div>
+<h2 class="otitle">Every book is full of other books.</h2>
+<p class="obody">Novel Mentions catalogs the <b>songs, movies, quotes, places and books</b> an author reaches for — where each one lands, and why it's there.</p>
+</div>
+<div class="ofoot">
+<div class="dots"><i class="on"></i><i></i><i></i></div>
+<div class="nextrow"><div class="nextbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<!-- BEAT 2 DARK -->
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Beat 2 · Dark</div>
+<div class="phone"><div class="scr dark">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="onb">
+<div class="otop"><span class="skip">Skip</span></div>
+<div class="oart"><div class="feats">
+<div class="feat"><span class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="5" width="16" height="2.4" rx="1.2"/><rect x="4" y="10.8" width="16" height="2.4" rx="1.2"/><rect x="4" y="16.6" width="11" height="2.4" rx="1.2"/></svg></span><div><div class="ft">Browse curated mentions</div><div class="fd">Every reference in reading order, grouped by chapter, filterable by kind.</div></div></div>
+<div class="feat"><span class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4.5" y="4.5" width="15" height="15" rx="3" stroke="currentColor" stroke-width="2"/><rect x="8" y="9" width="8" height="1.9" rx="1" fill="currentColor"/><rect x="8" y="13" width="5" height="1.9" rx="1" fill="currentColor"/></svg></span><div><div class="ft">Keep private notes</div><div class="fd">On a single mention, or on a whole book. Only you ever see them.</div></div></div>
+<div class="feat"><span class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="11" y="4" width="2" height="16" rx="1"/><rect x="4" y="11" width="16" height="2" rx="1"/></svg></span><div><div class="ft">Log what you spot — and add books</div><div class="fd">Catch a reference we missed? Log it. Add any book to build your own library.</div></div></div>
+</div></div>
+<div class="ocopy">
+<div class="oeyebrow">Yours to build on</div>
+<h2 class="otitle">Read deeper, add your own.</h2>
+<p class="obody">Follow what a book is made of — then make it yours.</p>
+</div>
+<div class="ofoot">
+<div class="dots"><i></i><i class="on"></i><i></i></div>
+<div class="nextrow"><div class="nextbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<!-- BEAT 3 DARK -->
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Beat 3 · Dark</div>
+<div class="phone"><div class="scr dark">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="onb">
+<div class="otop"></div>
+<div class="oart"><div class="shelf">
+<div class="scol"><div class="scover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="incband">Included</span><span class="ct">The Great Gatsby</span><span class="ca">Fitzgerald</span></div>
+<div class="scnt"><span class="kc k-song" style="padding:2px 6px">2</span><span class="kc k-quote" style="padding:2px 6px">4</span><span class="kc k-place" style="padding:2px 6px">3</span></div></div>
+<div class="scol"><div class="scover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="incband">Included</span><span class="ct">The Perks of Being a Wallflower</span><span class="ca">Chbosky</span></div>
+<div class="scnt"><span class="kc k-song" style="padding:2px 6px">5</span><span class="kc k-movie" style="padding:2px 6px">2</span><span class="kc k-quote" style="padding:2px 6px">3</span></div></div>
+</div></div>
+<div class="ocopy">
+<div class="oeyebrow">On us</div>
+<h2 class="otitle">Two books, already catalogued.</h2>
+<p class="obody"><b>Gatsby</b> and <b>Perks</b> come with the app — 21 mentions ready to explore. A starting point on us; add your own books whenever you like.</p>
+</div>
+<div class="ofoot">
+<div class="dots"><i></i><i></i><i class="on"></i></div>
+<div class="wcta">Open the Library<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="wfoot"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.6" stroke="currentColor" stroke-width="1.6"/><path d="M5.2 7V5.4a2.8 2.8 0 0 1 5.6 0V7" stroke="currentColor" stroke-width="1.6"/></svg>Everything stays on your device. No account, nothing to sign up for.</div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ LIBRARY PRIMED ============ -->
+<div class="seclab">Flow 02 · Hand-off</div>
+<h2 class="sectitle">Land in the Library, primed</h2>
+<p class="secsub">The welcome hands off to the real Library tab. The two curated books sit under an <b>"Included to get you started"</b> band so they never read as the reader's own shelf, and a one-time tip cues the first tap. Books the reader adds later appear under a second "Your library" band.</p>
+
+<div class="screenrow">
+
+<!-- LIBRARY PRIMED LIGHT -->
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light</div>
+<div class="phone"><div class="scr light">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="htop"><div><div class="h1">Library</div><p class="subline">2 books · 21 mentions catalogued</p></div>
+<div class="ovbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></div></div>
+<div class="search"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg>Search books &amp; mentions</div>
+<div class="tip"><div class="arrow" style="top:-8px;left:34px"></div><div class="tt"><span class="sparkle"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.4 3.6L13 6l-3.6 1.4L8 11 6.6 7.4 3 6l3.6-1.4z"/></svg></span>Open a book to explore its mentions</div><div class="td">Tap a card below — start with Gatsby or Perks, they're already catalogued.</div><div class="tgot">Got it</div></div>
+<div class="chap" style="margin-top:18px"><span class="lbl">Included to get you started</span><span class="ln"></span></div>
+<div class="bcard">
+<div class="cover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="ct">The Great Gatsby</span><span class="ca">Fitzgerald</span></div>
+<div class="bmeta"><div class="bt">The Great Gatsby <span class="inctag">Included</span></div><div class="ba">F. Scott Fitzgerald · Fiction</div>
+<div class="counts">
+<span class="kc k-song"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>2</span>
+<span class="kc k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;line-height:0.5">“</span>4</span>
+<span class="kc k-book"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>1</span>
+<span class="kc k-place"><svg width="10" height="11" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>3</span>
+</div></div></div>
+<div class="bcard">
+<div class="cover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="ct">The Perks of Being a Wallflower</span><span class="ca">Chbosky</span></div>
+<div class="bmeta"><div class="bt">The Perks of Being a Wallflower <span class="inctag">Included</span></div><div class="ba">Stephen Chbosky · Fiction</div>
+<div class="counts">
+<span class="kc k-song"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>5</span>
+<span class="kc k-movie"><svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>2</span>
+<span class="kc k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;line-height:0.5">“</span>3</span>
+<span class="kc k-book"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>2</span>
+</div></div></div>
+</div></div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<!-- LIBRARY PRIMED DARK -->
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark</div>
+<div class="phone"><div class="scr dark">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="htop"><div><div class="h1">Library</div><p class="subline">2 books · 21 mentions catalogued</p></div>
+<div class="ovbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></div></div>
+<div class="search"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg>Search books &amp; mentions</div>
+<div class="tip"><div class="arrow" style="top:-8px;left:34px"></div><div class="tt"><span class="sparkle"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.4 3.6L13 6l-3.6 1.4L8 11 6.6 7.4 3 6l3.6-1.4z"/></svg></span>Open a book to explore its mentions</div><div class="td">Tap a card below — start with Gatsby or Perks, they're already catalogued.</div><div class="tgot">Got it</div></div>
+<div class="chap" style="margin-top:18px"><span class="lbl">Included to get you started</span><span class="ln"></span></div>
+<div class="bcard">
+<div class="cover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="ct">The Great Gatsby</span><span class="ca">Fitzgerald</span></div>
+<div class="bmeta"><div class="bt">The Great Gatsby <span class="inctag">Included</span></div><div class="ba">F. Scott Fitzgerald · Fiction</div>
+<div class="counts">
+<span class="kc k-song"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>2</span>
+<span class="kc k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;line-height:0.5">“</span>4</span>
+<span class="kc k-book"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>1</span>
+<span class="kc k-place"><svg width="10" height="11" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>3</span>
+</div></div></div>
+<div class="bcard">
+<div class="cover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="ct">The Perks of Being a Wallflower</span><span class="ca">Chbosky</span></div>
+<div class="bmeta"><div class="bt">The Perks of Being a Wallflower <span class="inctag">Included</span></div><div class="ba">Stephen Chbosky · Fiction</div>
+<div class="counts">
+<span class="kc k-song"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>5</span>
+<span class="kc k-movie"><svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>2</span>
+<span class="kc k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;line-height:0.5">“</span>3</span>
+<span class="kc k-book"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>2</span>
+</div></div></div>
+</div></div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ CONTEXTUAL CUES + REVISIT ============ -->
+<div class="seclab">Flow 03 · In-place cues &amp; revisit</div>
+<h2 class="sectitle">Teach in context, re-openable any time</h2>
+<p class="secsub">Instead of explaining logging in the carousel, a one-time tip appears the first time a reader opens a book, anchored to the FAB. And the whole welcome is re-viewable from the Library <b>⋯</b> menu — the app has no settings screen, so this is its home.</p>
+
+<div class="screenrow">
+
+<!-- BOOK DETAIL FAB COACH MARK LIGHT -->
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>First book opened · FAB cue · Light</div>
+<div class="phone"><div class="scr light gatsby">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="bhead">
+<div class="navr"><div class="bk"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+<div class="brow"><div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="ct" style="font-size:11px">The Great Gatsby</span></div>
+<div><div class="ct">The Great Gatsby</div><div class="ca">F. Scott Fitzgerald</div><span class="tot">10 mentions</span></div></div>
+</div>
+<div class="body" style="top:196px"><div class="scroll" style="padding-top:12px">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Quotes</span><span class="chip">Places</span></div>
+<div class="chap"><span class="lbl">Chapter 2</span><span class="ln"></span></div>
+<div class="mrow"><div class="ki k-place"><svg width="15" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg></div><div class="mmain"><div class="mtitle">The Valley of Ashes</div><div class="mattr">West Egg → New York · p. 23</div><div class="mwhy">A grey industrial wasteland between the rich enclaves and the city…</div></div><div class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div></div>
+<div class="mrow"><div class="ki k-quote q">“</div><div class="mmain"><div class="mtitle">"So we beat on, boats against the current"</div><div class="mattr">Nick Carraway · p. 180</div><div class="mwhy">The closing line — the pull of the past against forward motion…</div></div><div class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div></div>
+</div></div>
+<div class="tipfab"><div class="arrow"></div><div class="tt" style="font-size:13.5px">Spotted one we missed?</div><div class="td">Tap <b>+</b> to log a mention and add it to this book.</div><div class="tgot">Got it</div></div>
+<div class="fab" style="bottom:34px"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="11" y="5" width="2" height="14" rx="1"/><rect x="5" y="11" width="14" height="2" rx="1"/></svg></div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<!-- BOOK DETAIL FAB COACH MARK DARK -->
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>First book opened · Dark</div>
+<div class="phone"><div class="scr dark gatsby">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="bhead">
+<div class="navr"><div class="bk"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+<div class="brow"><div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="ct" style="font-size:11px">The Great Gatsby</span></div>
+<div><div class="ct">The Great Gatsby</div><div class="ca">F. Scott Fitzgerald</div><span class="tot">10 mentions</span></div></div>
+</div>
+<div class="body" style="top:196px"><div class="scroll" style="padding-top:12px">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Quotes</span><span class="chip">Places</span></div>
+<div class="chap"><span class="lbl">Chapter 2</span><span class="ln"></span></div>
+<div class="mrow"><div class="ki k-place"><svg width="15" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg></div><div class="mmain"><div class="mtitle">The Valley of Ashes</div><div class="mattr">West Egg → New York · p. 23</div><div class="mwhy">A grey industrial wasteland between the rich enclaves and the city…</div></div><div class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div></div>
+<div class="mrow"><div class="ki k-quote q">“</div><div class="mmain"><div class="mtitle">"So we beat on, boats against the current"</div><div class="mattr">Nick Carraway · p. 180</div><div class="mwhy">The closing line — the pull of the past against forward motion…</div></div><div class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div></div>
+</div></div>
+<div class="tipfab"><div class="arrow"></div><div class="tt" style="font-size:13.5px">Spotted one we missed?</div><div class="td">Tap <b>+</b> to log a mention and add it to this book.</div><div class="tgot">Got it</div></div>
+<div class="fab" style="bottom:34px"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="11" y="5" width="2" height="14" rx="1"/><rect x="5" y="11" width="14" height="2" rx="1"/></svg></div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<!-- REVISIT MENU LIGHT -->
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Library ⋯ menu · Light</div>
+<div class="phone"><div class="scr light">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="htop"><div><div class="h1">Library</div><p class="subline">2 books · 21 mentions catalogued</p></div>
+<div class="ovbtn" style="background:var(--surface2);color:var(--text)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></div></div>
+<div class="search"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg>Search books &amp; mentions</div>
+<div class="bcard"><div class="cover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="ct">The Great Gatsby</span><span class="ca">Fitzgerald</span></div><div class="bmeta"><div class="bt">The Great Gatsby</div><div class="ba">F. Scott Fitzgerald · Fiction</div></div></div>
+</div></div>
+<div class="dimmer"></div>
+<div class="ovmenu">
+<div class="ovitem"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="10.5" width="2" height="6" rx="1" fill="currentColor"/><circle cx="12" cy="7.6" r="1.2" fill="currentColor"/></svg>How Novel Mentions works</div>
+<div class="div"></div>
+<div class="ovitem"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="10.5" width="2" height="5.5" rx="1" fill="currentColor"/><circle cx="12" cy="8" r="1.1" fill="currentColor"/></svg>About Novel Mentions</div>
+</div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<!-- REVISIT MENU DARK -->
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Library ⋯ menu · Dark</div>
+<div class="phone"><div class="scr dark">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="htop"><div><div class="h1">Library</div><p class="subline">2 books · 21 mentions catalogued</p></div>
+<div class="ovbtn" style="background:var(--surface2);color:var(--text)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></div></div>
+<div class="search"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg>Search books &amp; mentions</div>
+<div class="bcard"><div class="cover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="ct">The Great Gatsby</span><span class="ca">Fitzgerald</span></div><div class="bmeta"><div class="bt">The Great Gatsby</div><div class="ba">F. Scott Fitzgerald · Fiction</div></div></div>
+</div></div>
+<div class="dimmer"></div>
+<div class="ovmenu">
+<div class="ovitem"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="10.5" width="2" height="6" rx="1" fill="currentColor"/><circle cx="12" cy="7.6" r="1.2" fill="currentColor"/></svg>How Novel Mentions works</div>
+<div class="div"></div>
+<div class="ovitem"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="10.5" width="2" height="5.5" rx="1" fill="currentColor"/><circle cx="12" cy="8" r="1.1" fill="currentColor"/></svg>About Novel Mentions</div>
+</div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ TOKEN SPEC ============ -->
+<div class="seclab">Handoff</div>
+<h2 class="sectitle">Token map</h2>
+<p class="secsub">Onboarding introduces <b>zero new colour tokens</b> — every surface reuses the neutral layer, and CTAs use <code>accent-ink</code> exactly like the existing app-level empty-state buttons, so kind and status colours keep their meaning. New entries are structural only (a pager, a coach-mark, a section band). Full values in <b>Onboarding — Handoff.md</b>.</p>
+
+<div class="panels">
+<div class="panel wide">
+<h4>Element → token map</h4>
+<p class="pd">Everything here resolves to existing tokens. Light / dark follow the mode automatically.</p>
+<div class="trow"><span class="tn">Welcome canvas background<small>full-bleed page bg</small></span><span class="tv">bg &nbsp;#FAF7F1 / #141109</span></div>
+<div class="trow"><span class="tn">Beat title<small>Newsreader 600, 30 / −0.01em</small></span><span class="tv">text</span></div>
+<div class="trow"><span class="tn">Beat body / feature copy<small>Hanken 400, 15.5 · line 1.55</small></span><span class="tv">text-2</span></div>
+<div class="trow"><span class="tn">Eyebrow · "Skip"<small>Hanken 700 uppercase +0.14em / Hanken 600 14</small></span><span class="tv">text-3 / text-2</span></div>
+<div class="trow"><span class="tn">Feature icon tile<small>46×46, radius 13</small></span><span class="tv">bg surface-2 · glyph text</span></div>
+<div class="trow"><span class="tn">Kind chips (beat 1)<small>reuse count-chip: solid on soft</small></span><span class="tv">--k / --k-bg per kind</span></div>
+<div class="trow"><span class="tn">Pager dot · active / inactive<small>7px → 22×7 pill when active</small></span><span class="tv">accent-ink / text-3 @45%</span></div>
+<div class="trow"><span class="tn">Primary CTA + next button<small>"Open the Library", → circle</small></span><span class="tv">bg accent-ink · label bg</span></div>
+<div class="trow"><span class="tn">Coach-mark tip card + FAB tip<small>bg + border + shadow, arrow inherits</small></span><span class="tv">surface · border · shadow</span></div>
+<div class="trow"><span class="tn">"Got it" dismiss<small>Hanken 700 13</small></span><span class="tv">accent-ink</span></div>
+<div class="trow"><span class="tn">"Included to get you started" band<small>reuses the chapter-header pattern</small></span><span class="tv">label text-3 · rule border</span></div>
+<div class="trow"><span class="tn">"Included" card tag<small>Hanken 700 9.5 uppercase</small></span><span class="tv">bg surface-2 · text-2</span></div>
+<div class="trow"><span class="tn">⋯ overflow button / menu<small>36×36 · popover</small></span><span class="tv">text-2 · surface / border / shadow</span></div>
+<div class="trow"><span class="tn">Scrim behind menu<small>lighter than the modal scrim</small></span><span class="tv">rgba(12,8,3,.28) / rgba(0,0,0,.42)</span></div>
+</div>
+
+<div class="panel">
+<h4>New this addendum</h4>
+<p class="pd">Structure &amp; copy only — no colour tokens.</p>
+<div class="trow"><span class="tn">Welcome pager<small>3 paged beats, dots, Skip/→/CTA</small></span><span class="pill new">new pattern</span></div>
+<div class="trow"><span class="tn">Coach-mark tip<small>one-time, dismissible, arrow to anchor</small></span><span class="pill new">new component</span></div>
+<div class="trow"><span class="tn">"Included" section band<small>+ per-card Included tag</small></span><span class="pill">reused pattern</span></div>
+<div class="trow"><span class="tn">Library ⋯ overflow menu<small>revisit + about</small></span><span class="pill new">new component</span></div>
+<div class="trow"><span class="tn">Onboarding-seen flags<small>welcomeSeen · libraryTipSeen · fabTipSeen</small></span><span class="pill new">new state</span></div>
+<div style="margin-top:16px;font-size:12.5px;line-height:1.55;color:#6b6355">All persisted to local storage (AsyncStorage). No new colour, radius, or type tokens — radii reuse 16 (CTA) · 14 (tip / search) · 13 (icon tile) · 12 (menu item) · 11 (next), all already on the scale.</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#e7e2d9;font-family:'Hanken Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#b0447a;text-decoration:none}a:hover{color:#8e3462}
+.page{padding:52px 60px 140px}
+.hero{max-width:760px;margin-bottom:16px}
+.hero .ey{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a2917c}
+.hero h1{font-family:'Newsreader',serif;font-weight:600;font-size:46px;line-height:1.02;letter-spacing:-.015em;color:#241d15;margin:8px 0 12px}
+.hero p{font-size:15.5px;line-height:1.55;color:#5f5749;margin:0}
+.seclab{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a2917c;margin:54px 0 2px}
+.sectitle{font-family:'Newsreader',serif;font-size:27px;font-weight:600;color:#241d15;margin:0 0 4px}
+.secsub{font-size:13.5px;color:#6b6355;margin:0 0 22px;max-width:640px;line-height:1.5}
+.screenrow{display:flex;gap:38px;flex-wrap:wrap;align-items:flex-start}
+.unit{display:flex;flex-direction:column;gap:11px}
+.modelbl{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#6b6355}
+.modelbl .dot{width:8px;height:8px;border-radius:50%}
+.modelbl .dot.l{background:#d9d2c6;border:1px solid #b9b1a2}
+.modelbl .dot.d{background:#241d15}
+
+/* ===== PHONE FRAME ===== */
+.phone{width:388px;background:#0c0c0f;border-radius:52px;padding:10px;box-shadow:0 34px 70px -26px rgba(30,20,8,.5),0 10px 26px rgba(30,20,8,.16)}
+.scr{position:relative;width:100%;height:812px;border-radius:43px;overflow:hidden;background:var(--bg);color:var(--text);font-size:15px;line-height:1.4}
+.island{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:112px;height:31px;background:#0c0c0f;border-radius:18px;z-index:60}
+.home{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:132px;height:5px;border-radius:3px;background:var(--text);opacity:.28;z-index:55}
+.sb{position:absolute;top:0;left:0;right:0;height:52px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 7px;font-size:14.5px;font-weight:600;color:var(--text);z-index:40}
+.sb .r{display:flex;align-items:center;gap:6px}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:82px;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:9px 0 24px;z-index:45}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:600;color:var(--text3)}
+.tab.on{color:var(--accent-ink)}
+.fab{position:absolute;right:24px;width:56px;height:56px;border-radius:19px;background:var(--bk-fab);color:#fff;display:grid;place-items:center;z-index:44;box-shadow:0 12px 24px -6px var(--bk-fab)}
+.fab svg{display:block}
+.body{position:absolute;top:52px;left:0;right:0;bottom:0;overflow:hidden}
+.scroll{height:100%;overflow:hidden;padding:4px 20px 0}
+
+/* ===== THEME TOKENS ===== */
+.light{--bg:#FAF7F1;--surface:#FFFFFF;--surface2:#F1ECE2;--border:#E7E0D4;--line:#EFE9DE;--text:#211C15;--text2:#6C6355;--text3:#A69B89;--accent-ink:#241d15;--shadow:0 1px 2px rgba(40,28,12,.06),0 8px 20px rgba(40,28,12,.05);
+--song:#0E9C9C;--song-bg:#D6F1F0;--movie:#E15A38;--movie-bg:#FBE4DC;--quote:#C4890F;--quote-bg:#F6EBD1;--book:#7A5AD6;--book-bg:#E9E2FB;--place:#2E6FDB;--place-bg:#DDE8FB;--other:#8A8074;--other-bg:#ECE6DC;
+--pending:#C4890F;--pending-bg:#F6EBD1;--pub:#2E9E5B;--pub-bg:#DBEFE3;--rej:#D6443E;--rej-bg:#FADEDC;--personal:#8A8074;--personal-bg:#ECE6DC}
+.dark{--bg:#141109;--surface:#201B13;--surface2:#2A241B;--border:#39322717;--border:#39322A;--line:#2C271F;--text:#F4EFE6;--text2:#B4AB9B;--text3:#7C7365;--accent-ink:#F4EFE6;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 24px rgba(0,0,0,.4);
+--song:#33C7C7;--song-bg:#0F3130;--movie:#FF7E5C;--movie-bg:#3A241D;--quote:#EFBB4D;--quote-bg:#392D13;--book:#A78BF2;--book-bg:#29203F;--place:#5C93F0;--place-bg:#15233F;--other:#A79C8D;--other-bg:#2B271F;
+--pending:#EFBB4D;--pending-bg:#392D13;--pub:#4CC07D;--pub-bg:#132C20;--rej:#F0655E;--rej-bg:#391D1B;--personal:#A79C8D;--personal-bg:#2B271F}
+/* per-book identity */
+.perks{--bk-header:#D6397B;--bk-on:#fff;--bk-accent:#D6397B;--bk-fab:#D6397B}
+.light.perks{--bk-soft:#FBE1EC}.dark.perks{--bk-soft:#3A1526}
+.gatsby{--bk-header:#1E8A5A;--bk-on:#fff;--bk-accent:#1E8A5A;--bk-fab:#1E8A5A}
+.light.gatsby{--bk-soft:#DEF0E7}.dark.gatsby{--bk-soft:#0F3324}
+
+/* kind scoping */
+.k-song{--k:var(--song);--k-bg:var(--song-bg)}
+.k-movie{--k:var(--movie);--k-bg:var(--movie-bg)}
+.k-quote{--k:var(--quote);--k-bg:var(--quote-bg)}
+.k-book{--k:var(--book);--k-bg:var(--book-bg)}
+.k-place{--k:var(--place);--k-bg:var(--place-bg)}
+.k-other{--k:var(--other);--k-bg:var(--other-bg)}
+
+/* ===== COMPONENTS ===== */
+.h1{font-family:'Newsreader',serif;font-weight:600;font-size:30px;letter-spacing:-.01em;margin:8px 0 2px;color:var(--text)}
+.subline{color:var(--text2);font-size:13px;margin:0 0 4px}
+.search{margin:14px 0 2px;height:44px;border-radius:14px;background:var(--surface2);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--text3);font-size:15px}
+.bcard{display:flex;gap:15px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);margin-top:14px}
+.cover{width:76px;height:108px;border-radius:9px;flex:none;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:9px;color:#fff}
+.cover:before{content:"";position:absolute;left:9px;top:0;bottom:0;width:3px;background:rgba(0,0,0,.16)}
+.cover .ct{font-family:'Newsreader',serif;font-weight:600;font-size:13px;line-height:1.05;position:relative}
+.cover .ca{font-size:8.5px;opacity:.82;margin-top:4px;position:relative;letter-spacing:.03em;text-transform:uppercase}
+.cover .swap{position:absolute;top:6px;right:6px;font-size:7px;font-family:ui-monospace,Menlo,monospace;background:rgba(0,0,0,.22);padding:2px 4px;border-radius:4px;letter-spacing:.03em}
+.bmeta{flex:1;min-width:0}
+.bmeta .bt{font-family:'Newsreader',serif;font-weight:600;font-size:18.5px;line-height:1.12;color:var(--text)}
+.bmeta .ba{font-size:12.5px;color:var(--text2);margin-top:2px}
+.counts{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.kc{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--k);background:var(--k-bg);padding:3px 8px 3px 6px;border-radius:8px}
+.kc svg{display:block}
+
+.chips{display:flex;gap:8px;padding:2px 0}
+.chip{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;background:var(--surface2);color:var(--text2);border:1px solid var(--border);white-space:nowrap}
+.chip.on{background:var(--bk-accent);color:#fff;border-color:transparent}
+.chap{display:flex;align-items:center;gap:10px;margin:16px 2px 2px}
+.chap .lbl{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3)}
+.chap .ln{flex:1;height:1px;background:var(--border)}
+.mrow{display:flex;gap:12px;padding:13px 2px;align-items:flex-start;border-bottom:1px solid var(--line)}
+.ki{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;background:var(--k-bg);color:var(--k)}
+.ki.q{font-family:'Newsreader',serif;font-size:24px;line-height:0;padding-top:10px;font-style:italic}
+.mmain{flex:1;min-width:0}
+.mtitle{font-weight:600;font-size:15px;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mattr{font-size:12.5px;color:var(--text2);margin-top:1px}
+.mwhy{font-size:12.5px;color:var(--text3);margin-top:5px;line-height:1.38}
+.chev{color:var(--text3);flex:none;padding-top:8px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.b-yours{background:var(--bk-soft);color:var(--bk-accent)}
+.b-personal{background:var(--personal-bg);color:var(--personal)}
+.b-pending{background:var(--pending-bg);color:var(--pending)}
+.b-pub{background:var(--pub-bg);color:var(--pub)}
+.b-rej{background:var(--rej-bg);color:var(--rej)}
+
+.nav{display:flex;align-items:center;gap:6px;height:44px;padding:0 12px}
+.nav .bk{width:30px;height:30px;display:grid;place-items:center;color:var(--text)}
+.nav .nt{font-family:'Newsreader',serif;font-weight:600;font-size:16px;color:var(--text)}
+.bhead{background:var(--bk-header);color:var(--bk-on);padding:6px 20px 20px;position:relative}
+.bhead .nav .bk,.bhead .nav .nt{color:var(--bk-on)}
+.bhead .brow{display:flex;gap:15px;align-items:flex-end;margin-top:8px}
+.bhead .ct{font-family:'Newsreader',serif;font-weight:600;font-size:23px;line-height:1.06}
+.bhead .ca{font-size:13px;opacity:.9;margin-top:4px}
+.bhead .tot{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+
+.kindbadge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--k);background:var(--k-bg);padding:6px 12px;border-radius:10px}
+.mdtitle{font-family:'Newsreader',serif;font-weight:600;font-size:27px;line-height:1.08;letter-spacing:-.01em;margin:14px 0 3px;color:var(--text)}
+.mdattr{font-size:14px;color:var(--text2)}
+.loc{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text2);margin-top:11px}
+.excerpt{font-family:'Newsreader',serif;font-style:italic;font-size:18.5px;line-height:1.5;border-left:3px solid var(--k);padding:2px 0 2px 15px;margin:18px 0;color:var(--text)}
+.block{margin-top:18px}
+.block .lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.block p{font-size:14px;line-height:1.5;color:var(--text);margin:0}
+.note{background:var(--surface2);border-radius:13px;padding:11px 14px;margin-top:9px}
+.note p{font-size:13.5px;line-height:1.42;color:var(--text);margin:0}
+.note .nm{font-size:11px;color:var(--text3);margin-top:7px}
+.addnote{margin-top:10px;height:44px;border:1px dashed var(--border);border-radius:12px;display:flex;align-items:center;gap:8px;padding:0 14px;color:var(--text3);font-size:14px;font-weight:500}
+
+.modalbg{position:absolute;inset:0;background:rgba(12,8,3,.5);z-index:20}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:26px 26px 0 0;padding:6px 20px 22px;z-index:30;box-shadow:0 -8px 30px rgba(0,0,0,.18)}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--border);margin:6px auto 8px}
+.shead{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.shead .st{font-family:'Newsreader',serif;font-weight:600;font-size:19px;color:var(--text)}
+.shead .cx{font-size:14px;font-weight:600;color:var(--text2)}
+.save{background:var(--bk-fab);color:#fff;font-weight:700;font-size:13px;padding:8px 15px;border-radius:11px}
+.seg{display:flex;gap:6px;background:var(--surface2);padding:5px;border-radius:14px;margin:6px 0 15px}
+.segit{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:10px;font-size:10.5px;font-weight:700;color:var(--text2)}
+.segit.on{background:var(--surface);color:var(--k);box-shadow:var(--shadow)}
+.field{margin-bottom:13px}
+.field .fl{font-size:11.5px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;letter-spacing:.02em;text-transform:uppercase}
+.inp{min-height:44px;border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:11px 13px;font-size:14.5px;color:var(--text);display:flex;align-items:center}
+.inp.ph{color:var(--text3)}
+.inp.ta{align-items:flex-start;line-height:1.45}
+.two{display:flex;gap:11px}.two>div{flex:1}
+.reject-banner{background:var(--rej-bg);border-radius:13px;padding:11px 13px;margin-bottom:15px;border-left:3px solid var(--rej)}
+.reject-banner .rt{color:var(--rej);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px}
+.reject-banner p{font-size:13px;line-height:1.42;color:var(--text);margin:6px 0 0}
+
+.mtabs{display:flex;gap:26px;border-bottom:1px solid var(--border);margin:6px 2px 2px}
+.mtab{padding:8px 0 12px;font-size:15px;font-weight:600;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px}
+.mtab.on{color:var(--text);border-bottom-color:var(--accent-ink)}
+.srow{display:flex;gap:12px;padding:14px 2px;border-bottom:1px solid var(--line);align-items:flex-start}
+.minicover{width:42px;height:60px;border-radius:6px;flex:none;position:relative;overflow:hidden}
+.minicover:before{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.16)}
+.srow .st2{font-weight:600;font-size:14.5px;color:var(--text);display:flex;align-items:center;gap:7px}
+.srow .sb2{font-size:12px;color:var(--text2);margin-top:2px}
+.srow .sk{font-size:11.5px;color:var(--text3);margin-top:3px}
+.reason{font-size:12.5px;line-height:1.4;color:var(--text);margin-top:8px;background:var(--rej-bg);padding:8px 11px;border-radius:9px;border-left:2px solid var(--rej)}
+.reason b{color:var(--rej);font-weight:700}
+
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100%;padding:0 44px;gap:13px}
+.empty .ill{width:92px;height:92px;border-radius:26px;background:var(--surface2);display:grid;place-items:center;color:var(--text3);margin-bottom:2px}
+.empty h3{font-family:'Newsreader',serif;font-weight:600;font-size:21px;color:var(--text);margin:0}
+.empty p{font-size:14px;line-height:1.5;color:var(--text2);margin:0}
+.empty .cta{margin-top:8px;background:var(--accent-ink);color:var(--bg);padding:11px 20px;border-radius:14px;font-weight:700;font-size:14px}
+
+/* ===== SPEC PANELS ===== */
+.panel{background:#fff;border:1px solid rgba(40,28,12,.1);border-radius:18px;padding:26px 28px;box-shadow:0 1px 2px rgba(40,28,12,.05)}
+.panels{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.panel h4{font-family:'Newsreader',serif;font-size:19px;font-weight:600;margin:0 0 3px;color:#241d15}
+.panel .pd{font-size:12.5px;color:#6b6355;margin:0 0 18px}
+.swgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.sw{display:flex;flex-direction:column;gap:6px}
+.sw .chip2{height:46px;border-radius:10px;border:1px solid rgba(40,28,12,.08)}
+.sw .nm{font-size:12px;font-weight:700;color:#241d15}
+.sw .hx{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#8a8074;display:flex;gap:8px}
+.tokrow{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid #efe9de}
+.tokrow .tn{font-size:13px;color:#241d15;font-weight:600}
+.tokrow .tv{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:#8a8074}
+.typerow{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid #efe9de}
+.typerow .tv{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#a2917c;white-space:nowrap}
+.spacebars{display:flex;align-items:flex-end;gap:12px}
+.spacebar{display:flex;flex-direction:column;align-items:center;gap:6px}
+.spacebar .b{background:#d6397b;border-radius:3px;width:22px}
+.spacebar .n{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#8a8074}
+.legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:4px}
+.legend .li{display:flex;align-items:center;gap:9px;font-size:13px;color:#241d15;font-weight:600}
+</style>
+</helmet>
+
+<div class="page">
+
+<div class="hero">
+<div class="ey">Mobile companion app · design system + screens</div>
+<h1>Novel Mentions</h1>
+<p>Every song, movie, quote and book an author reaches for — catalogued where it appears, why it's there, and what the character was thinking. Warm and literary, but playful: a good bookstore meets a music app. Below: all five screens in light &amp; dark, component states, and the full token spec for handoff.</p>
+</div>
+
+<div class="legend">
+<div class="li"><span class="ki k-song" style="width:26px;height:26px;border-radius:7px"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></span>Songs · teal</div>
+<div class="li"><span class="ki k-movie" style="width:26px;height:26px;border-radius:7px"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg></span>Movies · coral</div>
+<div class="li"><span class="ki k-quote q" style="width:26px;height:26px;border-radius:7px;font-size:18px;padding-top:8px">“</span>Quotes · amber</div>
+<div class="li"><span class="ki k-book" style="width:26px;height:26px;border-radius:7px"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg></span>Books · purple</div>
+<div class="li"><span class="ki k-place" style="width:26px;height:26px;border-radius:7px"><svg width="12" height="13" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg></span>Places · blue</div>
+<div class="li"><span class="ki k-other" style="width:26px;height:26px;border-radius:7px"><svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3.2"/></svg></span>Other · gray</div>
+</div>
+
+<!-- ============ SCREEN 1 LIBRARY ============ -->
+<div class="seclab">Screen 01</div>
+<h2 class="sectitle">Library</h2>
+<p class="secsub">Tab root. Search plus book cards; each card carries per-kind mention counts in the fixed kind colors so a reader can scan what a book is rich in at a glance.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light</div>
+<div class="phone"><div class="scr light">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">Library</div>
+<p class="subline">2 books · 21 mentions catalogued</p>
+<div class="search"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg>Search books &amp; mentions</div>
+<div class="bcard">
+<div class="cover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="swap">cover.img</span><span class="ct">The Perks of Being a Wallflower</span><span class="ca">Chbosky</span></div>
+<div class="bmeta"><div class="bt">The Perks of Being a Wallflower</div><div class="ba">Stephen Chbosky · Fiction</div>
+<div class="counts">
+<span class="kc k-song"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>5</span>
+<span class="kc k-movie"><svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>2</span>
+<span class="kc k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;line-height:0.5">“</span>3</span>
+<span class="kc k-book"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>2</span>
+</div></div></div>
+<div class="bcard">
+<div class="cover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="swap">cover.img</span><span class="ct">The Great Gatsby</span><span class="ca">Fitzgerald</span></div>
+<div class="bmeta"><div class="bt">The Great Gatsby</div><div class="ba">F. Scott Fitzgerald · Fiction</div>
+<div class="counts">
+<span class="kc k-song"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>2</span>
+<span class="kc k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;line-height:0.5">“</span>4</span>
+<span class="kc k-book"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>1</span>
+<span class="kc k-place"><svg width="10" height="11" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>3</span>
+</div></div></div>
+</div></div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark</div>
+<div class="phone"><div class="scr dark">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">Library</div>
+<p class="subline">2 books · 21 mentions catalogued</p>
+<div class="search"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg>Search books &amp; mentions</div>
+<div class="bcard">
+<div class="cover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="swap">cover.img</span><span class="ct">The Perks of Being a Wallflower</span><span class="ca">Chbosky</span></div>
+<div class="bmeta"><div class="bt">The Perks of Being a Wallflower</div><div class="ba">Stephen Chbosky · Fiction</div>
+<div class="counts">
+<span class="kc k-song"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>5</span>
+<span class="kc k-movie"><svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>2</span>
+<span class="kc k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;line-height:0.5">“</span>3</span>
+<span class="kc k-book"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>2</span>
+</div></div></div>
+<div class="bcard">
+<div class="cover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="swap">cover.img</span><span class="ct">The Great Gatsby</span><span class="ca">Fitzgerald</span></div>
+<div class="bmeta"><div class="bt">The Great Gatsby</div><div class="ba">F. Scott Fitzgerald · Fiction</div>
+<div class="counts">
+<span class="kc k-song"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>2</span>
+<span class="kc k-quote"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:15px;line-height:0.5">“</span>4</span>
+<span class="kc k-book"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>1</span>
+<span class="kc k-place"><svg width="10" height="11" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>3</span>
+</div></div></div>
+</div></div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ SCREEN 2 BOOK DETAIL ============ -->
+<div class="seclab">Screen 02</div>
+<h2 class="sectitle">Book detail</h2>
+<p class="secsub">Header themed to the book's palette (Perks = mixtape pink). Filter chips, then mentions grouped under chapter headers in reading order. The reader's own logged mentions sit inline with a “Yours” badge. Floating + logs a new one.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light</div>
+<div class="phone"><div class="scr light perks">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body" style="top:0">
+<div class="bhead" style="padding-top:52px">
+<div class="nav" style="padding-left:0"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+<div class="brow">
+<div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="ct" style="font-size:11px">The Perks of Being a Wallflower</span></div>
+<div><div class="ct">The Perks of Being a Wallflower</div><div class="ca">Stephen Chbosky</div><span class="tot">12 mentions</span></div>
+</div>
+</div>
+<div class="scroll" style="padding-top:12px;height:calc(100% - 200px)">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Movies</span><span class="chip">Quotes</span><span class="chip">Books</span></div>
+<div class="chap"><span class="lbl">Part one</span><span class="ln"></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Asleep</div><div class="mattr">The Smiths · 1985 · p. 27</div><div class="mwhy">The song Charlie puts on every mixtape — his shorthand for feelings he can't say aloud.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-book"><div class="ki"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg></div><div class="mmain"><div class="mtitle">The Catcher in the Rye</div><div class="mattr">J.D. Salinger · p. 12</div><div class="mwhy">Bill gives it to Charlie — the first of the books that teach him to feel less alone.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-movie"><div class="ki"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg></div><div class="mmain"><div class="mtitle">The Rocky Horror Picture Show</div><div class="mattr">Film · 1975 · p. 45</div><div class="mwhy">Where Charlie first belongs to the group — Patrick as Frank-N-Furter.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Landslide <span class="badge b-yours">Yours</span></div><div class="mattr">Fleetwood Mac · p. 62</div><div class="mwhy">Plays as Charlie realises the people he loves are growing up and away.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+</div>
+<div class="fab" style="bottom:26px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark</div>
+<div class="phone"><div class="scr dark perks">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body" style="top:0">
+<div class="bhead" style="padding-top:52px">
+<div class="nav" style="padding-left:0"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+<div class="brow">
+<div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="ct" style="font-size:11px">The Perks of Being a Wallflower</span></div>
+<div><div class="ct">The Perks of Being a Wallflower</div><div class="ca">Stephen Chbosky</div><span class="tot">12 mentions</span></div>
+</div>
+</div>
+<div class="scroll" style="padding-top:12px;height:calc(100% - 200px)">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Movies</span><span class="chip">Quotes</span><span class="chip">Books</span></div>
+<div class="chap"><span class="lbl">Part one</span><span class="ln"></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Asleep</div><div class="mattr">The Smiths · 1985 · p. 27</div><div class="mwhy">The song Charlie puts on every mixtape — his shorthand for feelings he can't say aloud.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-book"><div class="ki"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg></div><div class="mmain"><div class="mtitle">The Catcher in the Rye</div><div class="mattr">J.D. Salinger · p. 12</div><div class="mwhy">Bill gives it to Charlie — the first of the books that teach him to feel less alone.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-movie"><div class="ki"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg></div><div class="mmain"><div class="mtitle">The Rocky Horror Picture Show</div><div class="mattr">Film · 1975 · p. 45</div><div class="mwhy">Where Charlie first belongs to the group — Patrick as Frank-N-Furter.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Landslide <span class="badge b-yours">Yours</span></div><div class="mattr">Fleetwood Mac · p. 62</div><div class="mwhy">Plays as Charlie realises the people he loves are growing up and away.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+</div>
+<div class="fab" style="bottom:26px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ SCREEN 3 MENTION DETAIL ============ -->
+<div class="seclab">Screen 03</div>
+<h2 class="sectitle">Mention detail</h2>
+<p class="secsub">Reads top-down: kind badge → title + attribution → edition-qualified location → excerpt as a pull-quote → “Why it's here” → “What Charlie was thinking” → the reader's private notes with an add-note affordance.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light</div>
+<div class="phone"><div class="scr light perks k-song">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body">
+<div class="nav"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nt" style="font-family:'Hanken Grotesk';font-weight:600;font-size:14px;color:var(--text2)">Perks of Being a Wallflower</span></div>
+<div class="scroll" style="padding-top:6px">
+<span class="kindbadge"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>Song</span>
+<div class="mdtitle">Asleep</div>
+<div class="mdattr">The Smiths · 1985</div>
+<div class="loc"><svg width="13" height="14" viewBox="0 0 14 16" fill="none"><circle cx="7" cy="6" r="2.6" stroke="currentColor" stroke-width="1.6"/><path d="M7 8.6 L7 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Part one · p. 27 <span style="color:var(--text3)">(2012 ed.)</span></div>
+<div class="excerpt">I would give it to Sam because I told her about it, and I hoped she would like it as much as I do.</div>
+<div class="block"><div class="lbl">Why it's here</div><p>The song Charlie puts on every mixtape — his shorthand for feelings he can't say aloud.</p></div>
+<div class="block"><div class="lbl">What Charlie was thinking</div><p>Sharing the song is his way of letting Sam see the sad parts of him without a confession.</p></div>
+<div class="block"><div class="lbl">Your notes</div>
+<div class="note"><p>Listened while reading this letter — devastating.</p><div class="nm">You · Jan 4</div></div>
+<div class="addnote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Add a note</div>
+</div>
+<div style="height:20px"></div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark</div>
+<div class="phone"><div class="scr dark perks k-song">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body">
+<div class="nav"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nt" style="font-family:'Hanken Grotesk';font-weight:600;font-size:14px;color:var(--text2)">Perks of Being a Wallflower</span></div>
+<div class="scroll" style="padding-top:6px">
+<span class="kindbadge"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>Song</span>
+<div class="mdtitle">Asleep</div>
+<div class="mdattr">The Smiths · 1985</div>
+<div class="loc"><svg width="13" height="14" viewBox="0 0 14 16" fill="none"><circle cx="7" cy="6" r="2.6" stroke="currentColor" stroke-width="1.6"/><path d="M7 8.6 L7 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Part one · p. 27 <span style="color:var(--text3)">(2012 ed.)</span></div>
+<div class="excerpt">I would give it to Sam because I told her about it, and I hoped she would like it as much as I do.</div>
+<div class="block"><div class="lbl">Why it's here</div><p>The song Charlie puts on every mixtape — his shorthand for feelings he can't say aloud.</p></div>
+<div class="block"><div class="lbl">What Charlie was thinking</div><p>Sharing the song is his way of letting Sam see the sad parts of him without a confession.</p></div>
+<div class="block"><div class="lbl">Your notes</div>
+<div class="note"><p>Listened while reading this letter — devastating.</p><div class="nm">You · Jan 4</div></div>
+<div class="addnote"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Add a note</div>
+</div>
+<div style="height:20px"></div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light · your mention (owner actions)</div>
+<div class="phone"><div class="scr light perks k-song">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body">
+<div class="nav"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="nt" style="font-family:'Hanken Grotesk';font-weight:600;font-size:14px;color:var(--text2)">Perks of Being a Wallflower</span></div>
+<div class="scroll" style="padding-top:6px">
+<div style="display:flex;align-items:center;gap:8px">
+<span class="kindbadge"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>Song</span>
+<span class="badge b-personal">Personal</span>
+</div>
+<div class="mdtitle">Landslide</div>
+<div class="mdattr">Fleetwood Mac · 1975</div>
+<div class="loc"><svg width="13" height="14" viewBox="0 0 14 16" fill="none"><circle cx="7" cy="6" r="2.6" stroke="currentColor" stroke-width="1.6"/><path d="M7 8.6 L7 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Part one · p. 62 <span style="color:var(--text3)">(2012 ed.)</span></div>
+<div class="block"><div class="lbl">Why it's here</div><p>Plays as Charlie realises the people he loves are growing up and away.</p></div>
+<div class="block"><div class="lbl">What Charlie was thinking</div><p>He can't keep the people he loves from leaving — the song lets him grieve it before it happens.</p></div>
+<div style="margin-top:20px;background:var(--bk-fab);color:#fff;font-weight:700;font-size:13.5px;padding:13px;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 19 V5 M6 11 L12 5 L18 11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Submit for review</div>
+<p style="font-size:11.5px;color:var(--text3);text-align:center;margin:8px 0 0;line-height:1.4">We'll fact-check it, then publish for other readers.</p>
+<div style="display:flex;gap:10px;margin-top:14px">
+<div style="flex:1;border:1px solid var(--border);color:var(--text);font-weight:600;font-size:13.5px;padding:11px;border-radius:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 20 L4 15 L15 4 L20 9 L9 20 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Edit</div>
+<div style="flex:1;border:1px solid var(--rej);color:var(--rej);font-weight:600;font-size:13.5px;padding:11px;border-radius:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 6 h14 M9 6 V4 h6 V6 M7 6 l1 14 h8 l1 -14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Delete</div>
+</div>
+</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+</div>
+
+<!-- ============ SCREEN 4 LOG MODAL ============ -->
+<div class="seclab">Screen 04</div>
+<h2 class="sectitle">Log a mention (modal)</h2>
+<p class="secsub">Opens as a bottom sheet over the book. Kind selector as segmented icons, then the fields. On the right: the rejected-mention state — the same form reopened pre-filled with the reviewer's reason pinned on top and a Resubmit action.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light · new</div>
+<div class="phone"><div class="scr light perks k-song">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll" style="filter:blur(1px);opacity:.5"><div class="h1">The Perks…</div><div class="chips"><span class="chip on">All</span><span class="chip">Songs</span></div></div></div>
+<div class="modalbg"></div>
+<div class="sheet">
+<div class="grab"></div>
+<div class="shead"><span class="cx">Cancel</span><span class="st">Log a mention</span><span class="save">Save</span></div>
+<div class="seg">
+<div class="segit on k-song"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>Song</div>
+<div class="segit"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>Movie</div>
+<div class="segit"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:18px;line-height:0.6">“</span>Quote</div>
+<div class="segit"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>Book</div>
+<div class="segit"><svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3.2"/></svg>Other</div>
+</div>
+<div class="field"><span class="fl">Title</span><div class="inp val">Asleep</div></div>
+<div class="field"><span class="fl">Attribution</span><div class="inp val">The Smiths · 1985</div></div>
+<div class="field"><span class="fl">Chapter / part</span><div class="inp val">Part one</div></div>
+<div class="two"><div class="field"><span class="fl">Page</span><div class="inp val">27</div></div><div class="field"><span class="fl">Edition</span><div class="inp ph">2012 ed.</div></div></div>
+<div class="field"><span class="fl">Short excerpt</span><div class="inp ta ph" style="min-height:56px">Paste a line or two from the page…</div></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark · rejected → resubmit</div>
+<div class="phone"><div class="scr dark perks k-song">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll" style="filter:blur(1px);opacity:.4"></div></div>
+<div class="modalbg"></div>
+<div class="sheet">
+<div class="grab"></div>
+<div class="shead"><span class="cx">Cancel</span><span class="st">Edit mention</span><span class="save" style="background:var(--rej)">Resubmit</span></div>
+<div class="reject-banner">
+<div class="rt"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7"/><rect x="7.2" y="4" width="1.6" height="5" rx=".8" fill="var(--bg)"/><rect x="7.2" y="10.4" width="1.6" height="1.6" rx=".8" fill="var(--bg)"/></svg>Reviewer's reason</div>
+<p>Couldn't verify the page number — the 2004 edition puts this on p. 41, not p. 62. Please confirm your edition.</p>
+</div>
+<div class="field"><span class="fl">Title</span><div class="inp val">Landslide</div></div>
+<div class="field"><span class="fl">Attribution</span><div class="inp val">Fleetwood Mac · 1975</div></div>
+<div class="two"><div class="field"><span class="fl">Page</span><div class="inp val" style="border-color:var(--rej)">62</div></div><div class="field"><span class="fl">Edition</span><div class="inp ph">Add edition</div></div></div>
+<div class="field"><span class="fl">Why it's mentioned</span><div class="inp ta val" style="min-height:56px">Plays as Charlie realises the people he loves are growing up and away.</div></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ SCREEN 5 MY STUFF ============ -->
+<div class="seclab">Screen 05</div>
+<h2 class="sectitle">My stuff</h2>
+<p class="secsub">Tab root with “My mentions” / “My notes”. Each row shows the book plus a status badge — Personal, Pending review, Published, or Rejected. A rejected row carries the reviewer's reason inline.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light</div>
+<div class="phone"><div class="scr light perks">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">My stuff</div>
+<div class="mtabs"><span class="mtab on">My mentions</span><span class="mtab">My notes</span></div>
+<div class="srow k-song"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div class="st2">Landslide</div><div class="sb2">Fleetwood Mac · The Perks of Being a Wallflower</div></div><span class="badge b-pub">Published</span></div>
+<div class="srow k-quote"><div class="minicover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"></div><div class="mmain"><div class="st2">Beale Street Blues</div><div class="sb2">W.C. Handy · The Great Gatsby</div></div><span class="badge b-pending">Pending</span></div>
+<div class="srow k-book"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div class="st2">On the Road</div><div class="sb2">Jack Kerouac · The Perks of Being a Wallflower</div></div><span class="badge b-personal">Personal</span></div>
+<div class="srow k-song"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div class="st2">Landslide</div><div class="sb2">Fleetwood Mac · p. 62 · The Perks…</div><div class="reason"><b>Rejected · </b>Page number didn't match the 2004 edition. Tap to fix &amp; resubmit.</div></div><span class="badge b-rej">Rejected</span></div>
+</div></div>
+<div class="tabbar">
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark</div>
+<div class="phone"><div class="scr dark perks">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">My stuff</div>
+<div class="mtabs"><span class="mtab on">My mentions</span><span class="mtab">My notes</span></div>
+<div class="srow k-song"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div class="st2">Landslide</div><div class="sb2">Fleetwood Mac · The Perks of Being a Wallflower</div></div><span class="badge b-pub">Published</span></div>
+<div class="srow k-quote"><div class="minicover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"></div><div class="mmain"><div class="st2">Beale Street Blues</div><div class="sb2">W.C. Handy · The Great Gatsby</div></div><span class="badge b-pending">Pending</span></div>
+<div class="srow k-book"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div class="st2">On the Road</div><div class="sb2">Jack Kerouac · The Perks of Being a Wallflower</div></div><span class="badge b-personal">Personal</span></div>
+<div class="srow k-song"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div class="st2">Landslide</div><div class="sb2">Fleetwood Mac · p. 62 · The Perks…</div><div class="reason"><b>Rejected · </b>Page number didn't match the 2004 edition. Tap to fix &amp; resubmit.</div></div><span class="badge b-rej">Rejected</span></div>
+</div></div>
+<div class="tabbar">
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light · My notes tab</div>
+<div class="phone"><div class="scr light perks">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">My stuff</div>
+<div class="mtabs"><span class="mtab">My mentions</span><span class="mtab on">My notes</span></div>
+<div class="srow"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div style="font-family:'Newsreader',serif;font-style:italic;font-size:14.5px;line-height:1.42;color:var(--text)">“Listened while reading this letter — devastating.”</div><div class="sb2" style="margin-top:5px">On <b style="color:var(--text2);font-weight:600">Asleep</b> · The Perks of Being a Wallflower</div></div></div>
+<div class="srow"><div class="minicover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"></div><div class="mmain"><div style="font-family:'Newsreader',serif;font-style:italic;font-size:14.5px;line-height:1.42;color:var(--text)">“The green light is everything Gatsby can't reach — reread this three times.”</div><div class="sb2" style="margin-top:5px">On <b style="color:var(--text2);font-weight:600">the closing line</b> · The Great Gatsby</div></div></div>
+<div class="srow"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div style="font-family:'Newsreader',serif;font-style:italic;font-size:14.5px;line-height:1.42;color:var(--text)">“Rewatched it the same night. Patrick is the whole book.”</div><div class="sb2" style="margin-top:5px">On <b style="color:var(--text2);font-weight:600">The Rocky Horror Picture Show</b> · Perks</div></div></div>
+</div></div>
+<div class="tabbar">
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+</div>
+
+<!-- ============ EXTRA STATES ============ -->
+<div class="seclab">Component states</div>
+<h2 class="sectitle">Note sheet · empty states</h2>
+<p class="secsub">Note editor as its own bottom sheet, and the two empty states phrased as invitations.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Note editor (bottom sheet)</div>
+<div class="phone"><div class="scr light perks k-song">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll" style="filter:blur(1px);opacity:.5"><span class="kindbadge">Song</span><div class="mdtitle">Asleep</div><div class="mdattr">The Smiths</div></div></div>
+<div class="modalbg" style="background:rgba(12,8,3,.4)"></div>
+<div class="sheet" style="padding-bottom:16px">
+<div class="grab"></div>
+<div class="shead"><span class="cx">Cancel</span><span class="st">Your note</span><span class="save">Save</span></div>
+<div class="field" style="margin-top:6px"><div class="inp ta val" style="min-height:120px;align-items:flex-start">Listened while reading this letter — devastating.</div></div>
+<div style="display:flex;align-items:center;gap:6px;color:var(--text3);padding:6px 2px 0"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="3" y="7" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M5.4 7 V5.2 a2.6 2.6 0 0 1 5.2 0 V7" stroke="currentColor" stroke-width="1.6"/></svg><span style="font-size:12px;font-weight:600">Private to you · plain text</span></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Empty · My mentions</div>
+<div class="phone"><div class="scr light perks">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">My stuff</div>
+<div class="mtabs"><span class="mtab on">My mentions</span><span class="mtab">My notes</span></div>
+<div class="empty" style="height:calc(100% - 90px)">
+<div class="ill"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 15.5 L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+<h3>Spotted a mention we missed?</h3>
+<p>Log the songs, films and books you catch as you read. We'll fact-check them, then share with other readers.</p>
+<div class="cta">Log a mention</div>
+</div>
+</div></div>
+<div class="tabbar">
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Empty · Library search</div>
+<div class="phone"><div class="scr dark perks">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">Library</div>
+<div class="search" style="color:var(--text)"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg>the bell jar</div>
+<div class="empty" style="height:calc(100% - 130px)">
+<div class="ill"><svg width="38" height="38" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="3" width="7" height="18" rx="1.5"/><rect x="13" y="3" width="7" height="18" rx="1.5"/></svg></div>
+<h3>No books match yet</h3>
+<p>“The Bell Jar” isn't in your library. Add it and start cataloguing what Plath was listening to.</p>
+<div class="cta">Add a book</div>
+</div>
+</div></div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ GATSBY THEMING ============ -->
+<div class="seclab">Per-book theming</div>
+<h2 class="sectitle">A second palette · The Great Gatsby</h2>
+<p class="secsub">The exact same components, wearing another book's colours. Gatsby's dock-light green themes the header, active chip and FAB — proof the per-book identity holds on any title. Kind and status colours never change.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light</div>
+<div class="phone"><div class="scr light gatsby">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body" style="top:0">
+<div class="bhead" style="padding-top:52px">
+<div class="nav" style="padding-left:0"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+<div class="brow">
+<div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="ct" style="font-size:11px">The Great Gatsby</span></div>
+<div><div class="ct">The Great Gatsby</div><div class="ca">F. Scott Fitzgerald</div><span class="tot">10 mentions</span></div>
+</div>
+</div>
+<div class="scroll" style="padding-top:12px;height:calc(100% - 200px)">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Quotes</span><span class="chip">Places</span><span class="chip">Books</span></div>
+<div class="chap"><span class="lbl">Chapter 1</span><span class="ln"></span></div>
+<div class="mrow k-quote"><div class="ki q">“</div><div class="mmain"><div class="mtitle">On reserving judgement</div><div class="mattr">Nick Carraway · p. 1</div><div class="mwhy">His father's advice — the lens Nick claims to judge everyone at Gatsby's parties through.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-place"><div class="ki"><svg width="14" height="15" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.4"/><path d="M8 15 L4.6 9.4 L11.4 9.4 Z"/></svg></div><div class="mmain"><div class="mtitle">The Valley of Ashes</div><div class="mattr">Place · p. 23</div><div class="mwhy">The grey wasteland between West Egg and the city — the moral cost under the era's wealth.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="chap"><span class="lbl">Chapter 3</span><span class="ln"></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Ain't We Got Fun</div><div class="mattr">Van &amp; Schenck · 1921 · p. 40</div><div class="mwhy">Carefree jazz-age optimism playing over the excess of Gatsby's party.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Beale Street Blues</div><div class="mattr">W.C. Handy · 1917 · p. 47</div><div class="mwhy">The orchestra's number as Gatsby watches Daisy across the lawn.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+</div>
+<div class="fab" style="bottom:26px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark</div>
+<div class="phone"><div class="scr dark gatsby">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body" style="top:0">
+<div class="bhead" style="padding-top:52px">
+<div class="nav" style="padding-left:0"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+<div class="brow">
+<div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#2AA96E,#0E6E44)"><span class="ct" style="font-size:11px">The Great Gatsby</span></div>
+<div><div class="ct">The Great Gatsby</div><div class="ca">F. Scott Fitzgerald</div><span class="tot">10 mentions</span></div>
+</div>
+</div>
+<div class="scroll" style="padding-top:12px;height:calc(100% - 200px)">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Quotes</span><span class="chip">Places</span><span class="chip">Books</span></div>
+<div class="chap"><span class="lbl">Chapter 1</span><span class="ln"></span></div>
+<div class="mrow k-quote"><div class="ki q">“</div><div class="mmain"><div class="mtitle">On reserving judgement</div><div class="mattr">Nick Carraway · p. 1</div><div class="mwhy">His father's advice — the lens Nick claims to judge everyone at Gatsby's parties through.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-place"><div class="ki"><svg width="14" height="15" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.4"/><path d="M8 15 L4.6 9.4 L11.4 9.4 Z"/></svg></div><div class="mmain"><div class="mtitle">The Valley of Ashes</div><div class="mattr">Place · p. 23</div><div class="mwhy">The grey wasteland between West Egg and the city — the moral cost under the era's wealth.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="chap"><span class="lbl">Chapter 3</span><span class="ln"></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Ain't We Got Fun</div><div class="mattr">Van &amp; Schenck · 1921 · p. 40</div><div class="mwhy">Carefree jazz-age optimism playing over the excess of Gatsby's party.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Beale Street Blues</div><div class="mattr">W.C. Handy · 1917 · p. 47</div><div class="mwhy">The orchestra's number as Gatsby watches Daisy across the lawn.</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+</div>
+<div class="fab" style="bottom:26px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ ADDENDUM 1 · PLACE ============ -->
+<div class="seclab">Addendum 01</div>
+<h2 class="sectitle">New kind · Place</h2>
+<p class="secsub">“Place” is now a real 6th mention kind (Gatsby's Valley of Ashes etc.) with its own fixed colour — a saturated blue, distinct from the five kinds and the status colours. It gets its own filled-pin mark so the outline pin on the mention-detail location row stays unambiguous. The six-segment selector still fits one row at 393pt.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light · 6-kind selector</div>
+<div class="phone"><div class="scr light perks k-place">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll" style="filter:blur(1px);opacity:.4"></div></div>
+<div class="modalbg"></div>
+<div class="sheet">
+<div class="grab"></div>
+<div class="shead"><span class="cx">Cancel</span><span class="st">Log a mention</span><span class="save">Save</span></div>
+<div class="seg" style="gap:5px">
+<div class="segit"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>Song</div>
+<div class="segit"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>Movie</div>
+<div class="segit"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:17px;line-height:0.6">“</span>Quote</div>
+<div class="segit"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>Book</div>
+<div class="segit on k-place"><svg width="13" height="14" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.4"/><path d="M8 15 L4.6 9.4 L11.4 9.4 Z"/></svg>Place</div>
+<div class="segit"><svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3.2"/></svg>Other</div>
+</div>
+<div class="field"><span class="fl">Title</span><div class="inp val">The Valley of Ashes</div></div>
+<div class="field"><span class="fl">Attribution</span><div class="inp val">Place · Long Island, NY</div></div>
+<div class="field"><span class="fl">Chapter / part</span><div class="inp val">Chapter 2</div></div>
+<div class="two"><div class="field"><span class="fl">Page</span><div class="inp val">23</div></div><div class="field"><span class="fl">Edition</span><div class="inp ph">2004 ed.</div></div></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark · 6-kind selector</div>
+<div class="phone"><div class="scr dark perks k-place">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll" style="filter:blur(1px);opacity:.3"></div></div>
+<div class="modalbg"></div>
+<div class="sheet">
+<div class="grab"></div>
+<div class="shead"><span class="cx">Cancel</span><span class="st">Log a mention</span><span class="save">Save</span></div>
+<div class="seg" style="gap:5px">
+<div class="segit"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg>Song</div>
+<div class="segit"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3 L13.5 8 L4 13 Z"/></svg>Movie</div>
+<div class="segit"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:17px;line-height:0.6">“</span>Quote</div>
+<div class="segit"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="3" width="5" height="10.5" rx="1"/><rect x="9" y="3" width="5" height="10.5" rx="1"/></svg>Book</div>
+<div class="segit on k-place"><svg width="13" height="14" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.4"/><path d="M8 15 L4.6 9.4 L11.4 9.4 Z"/></svg>Place</div>
+<div class="segit"><svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3.2"/></svg>Other</div>
+</div>
+<div class="field"><span class="fl">Title</span><div class="inp val">The Valley of Ashes</div></div>
+<div class="field"><span class="fl">Attribution</span><div class="inp val">Place · Long Island, NY</div></div>
+<div class="field"><span class="fl">Chapter / part</span><div class="inp val">Chapter 2</div></div>
+<div class="two"><div class="field"><span class="fl">Page</span><div class="inp val">23</div></div><div class="field"><span class="fl">Edition</span><div class="inp ph">2004 ed.</div></div></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl">Place in context</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="light" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 16px 6px;width:300px;color:var(--text);font-family:'Hanken Grotesk',sans-serif">
+<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px">Light</div>
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+<span class="kc k-place"><svg width="11" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>3</span>
+<span class="kindbadge k-place"><svg width="12" height="13" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>Place</span>
+</div>
+<div class="mrow k-place" style="border-bottom:none"><div class="ki"><svg width="14" height="15" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.4"/><path d="M8 15 L4.6 9.4 L11.4 9.4 Z"/></svg></div><div class="mmain"><div class="mtitle">The Valley of Ashes</div><div class="mattr">Place · p. 23</div><div class="mwhy">The grey wasteland between West Egg and the city.</div></div></div>
+</div>
+<div class="dark" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 16px 6px;width:300px;color:var(--text);font-family:'Hanken Grotesk',sans-serif">
+<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px">Dark</div>
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+<span class="kc k-place"><svg width="11" height="12" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>3</span>
+<span class="kindbadge k-place"><svg width="12" height="13" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.2"/><path d="M8 14.5 L5 9.6 L11 9.6 Z"/></svg>Place</span>
+</div>
+<div class="mrow k-place" style="border-bottom:none"><div class="ki"><svg width="14" height="15" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="6" r="3.4"/><path d="M8 15 L4.6 9.4 L11.4 9.4 Z"/></svg></div><div class="mmain"><div class="mtitle">The Valley of Ashes</div><div class="mattr">Place · p. 23</div><div class="mwhy">The grey wasteland between West Egg and the city.</div></div></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ============ ADDENDUM 2 · ADD A BOOK ============ -->
+<div class="seclab">Addendum 02</div>
+<h2 class="sectitle">Add a book</h2>
+<p class="secsub">The Library-search “Add a book” CTA opens a full-height sheet: search a public book database, pick a result, confirm. The book is added to the reader's <b>local library only</b> — no community publishing yet. New books have no curated mentions, so the empty Book-detail state is defined here; their palette is derived from the cover (house fallback if none).</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light · search &amp; results</div>
+<div class="phone"><div class="scr light">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll" style="filter:blur(1px);opacity:.35"></div></div>
+<div class="modalbg"></div>
+<div class="sheet" style="top:60px;bottom:0;border-radius:26px 26px 0 0;display:flex;flex-direction:column">
+<div class="grab"></div>
+<div class="shead"><span class="cx">Cancel</span><span class="st">Add a book</span><span style="width:40px"></span></div>
+<div class="search" style="margin:8px 0 4px;color:var(--text)"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg>the bell jar</div>
+<div style="font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin:14px 2px 4px">Results</div>
+<div style="display:flex;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:center"><div style="width:40px;height:57px;border-radius:5px;flex:none;background:linear-gradient(160deg,#B85C68,#7E2E3C)"></div><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px">The Bell Jar</div><div style="font-size:12px;color:var(--text2);margin-top:2px">Sylvia Plath · 1963</div></div><div style="border:1px solid var(--accent-ink);color:var(--accent-ink);font-weight:700;font-size:12px;padding:7px 14px;border-radius:10px">Add</div></div>
+<div style="display:flex;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:center"><div style="width:40px;height:57px;border-radius:5px;flex:none;background:linear-gradient(160deg,#9AA0B5,#565C74)"></div><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px">The Bell Jar: Annotated</div><div style="font-size:12px;color:var(--text2);margin-top:2px">Sylvia Plath · Faber · 2005</div></div><div style="border:1px solid var(--border);color:var(--text2);font-weight:700;font-size:12px;padding:7px 14px;border-radius:10px">Add</div></div>
+<div style="display:flex;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:center"><div style="width:40px;height:57px;border-radius:5px;flex:none;background:linear-gradient(160deg,#C9A24B,#8A6520)"></div><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:14px">Letters Home</div><div style="font-size:12px;color:var(--text2);margin-top:2px">Sylvia Plath · 1975</div></div><div style="border:1px solid var(--border);color:var(--text2);font-weight:700;font-size:12px;padding:7px 14px;border-radius:10px">Add</div></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark · confirm</div>
+<div class="phone"><div class="scr dark">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll" style="filter:blur(1px);opacity:.3"></div></div>
+<div class="modalbg"></div>
+<div class="sheet">
+<div class="grab"></div>
+<div class="shead"><span class="cx"><svg width="9" height="15" viewBox="0 0 11 18" fill="none" style="display:inline-block;vertical-align:-1px"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg> Back</span><span class="st">Add this book?</span><span style="width:40px"></span></div>
+<div style="display:flex;gap:15px;margin:10px 0 18px">
+<div style="width:84px;height:120px;border-radius:8px;flex:none;background:linear-gradient(160deg,#B85C68,#7E2E3C)"></div>
+<div style="flex:1"><div style="font-family:'Newsreader',serif;font-weight:600;font-size:21px;line-height:1.1">The Bell Jar</div><div style="font-size:13px;color:var(--text2);margin-top:4px">Sylvia Plath</div><div style="font-size:12.5px;color:var(--text3);margin-top:10px;line-height:1.5">Fiction · 1963 · 288 pages<br>Heinemann (first ed.)</div></div>
+</div>
+<div style="background:var(--accent-ink);color:var(--bg);font-weight:700;font-size:14px;padding:13px;border-radius:14px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Add to my library</div>
+<p style="font-size:11.5px;color:var(--text3);text-align:center;margin:10px 0 0;line-height:1.45">Saved to your library only. You can start logging mentions yourself — publishing to other readers comes later.</p>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl">Search states + new book</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="light" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;width:300px;color:var(--text);font-family:'Hanken Grotesk',sans-serif">
+<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px">Loading</div>
+<div style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:12.5px;margin-bottom:12px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--border)" stroke-width="3"/><path d="M12 3 a9 9 0 0 1 9 9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>Searching…</div>
+<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px"><div style="width:36px;height:50px;border-radius:5px;background:var(--surface2);flex:none"></div><div style="flex:1"><div style="height:11px;width:70%;background:var(--surface2);border-radius:4px"></div><div style="height:9px;width:45%;background:var(--surface2);border-radius:4px;margin-top:7px"></div></div></div>
+<div style="display:flex;gap:12px;align-items:center"><div style="width:36px;height:50px;border-radius:5px;background:var(--surface2);flex:none"></div><div style="flex:1"><div style="height:11px;width:60%;background:var(--surface2);border-radius:4px"></div><div style="height:9px;width:40%;background:var(--surface2);border-radius:4px;margin-top:7px"></div></div></div>
+</div>
+<div class="dark" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 16px;width:300px;color:var(--text);font-family:'Hanken Grotesk',sans-serif;text-align:center">
+<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px;text-align:left">No results</div>
+<div style="width:56px;height:56px;border-radius:16px;background:var(--surface2);display:grid;place-items:center;color:var(--text3);margin:0 auto 12px"><svg width="24" height="24" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg></div>
+<div style="font-family:'Newsreader',serif;font-weight:600;font-size:17px">No books found for “gatzby”</div>
+<p style="font-size:12.5px;color:var(--text2);margin:6px 0 0;line-height:1.45">Try a different title or check the spelling.</p>
+</div>
+<div class="light" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;width:300px;color:var(--text);font-family:'Hanken Grotesk',sans-serif;box-shadow:var(--shadow)">
+<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px">New book · Library card</div>
+<div style="display:flex;gap:14px">
+<div style="width:64px;height:92px;border-radius:9px;flex:none;background:linear-gradient(160deg,#B85C68,#7E2E3C)"></div>
+<div style="flex:1"><div style="font-family:'Newsreader',serif;font-weight:600;font-size:17px;line-height:1.12">The Bell Jar</div><div style="font-size:12px;color:var(--text2);margin-top:2px">Sylvia Plath · Fiction</div>
+<div style="display:inline-flex;align-items:center;gap:6px;margin-top:11px;font-size:12px;color:var(--text3);background:var(--surface2);padding:5px 10px;border-radius:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>No mentions yet</div>
+</div></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<p class="secsub" style="margin-top:26px">Empty Book detail — a freshly added book before it has any curated mentions. Palette is derived from the cover (here an oxblood pulled from The Bell Jar); it themes header, chips and FAB exactly like a curated book.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light · empty book</div>
+<div class="phone"><div class="scr light" style="--bk-header:#9E4A57;--bk-on:#fff;--bk-accent:#9E4A57;--bk-fab:#9E4A57;--bk-soft:#F6E4E7">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body" style="top:0">
+<div class="bhead" style="padding-top:52px">
+<div class="nav" style="padding-left:0"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+<div class="brow">
+<div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#B85C68,#7E2E3C)"><span class="ct" style="font-size:11px">The Bell Jar</span></div>
+<div><div class="ct">The Bell Jar</div><div class="ca">Sylvia Plath</div><span class="tot">No mentions yet</span></div>
+</div>
+</div>
+<div class="scroll" style="padding-top:12px;height:calc(100% - 200px)">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Movies</span><span class="chip">Quotes</span><span class="chip">Places</span></div>
+<div class="empty" style="height:calc(100% - 60px);padding:0 30px">
+<div class="ill" style="background:var(--bk-soft);color:var(--bk-accent)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 6 L12 18 M6 12 L18 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+<h3>No mentions yet</h3>
+<p>Be the first to catalog the songs, films and places Plath reaches for.</p>
+<div class="cta" style="background:var(--bk-fab)">Log a mention</div>
+</div>
+</div>
+<div class="fab" style="bottom:26px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark · empty book</div>
+<div class="phone"><div class="scr dark" style="--bk-header:#9E4A57;--bk-on:#fff;--bk-accent:#C86776;--bk-fab:#9E4A57;--bk-soft:#3A2024">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body" style="top:0">
+<div class="bhead" style="padding-top:52px">
+<div class="nav" style="padding-left:0"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+<div class="brow">
+<div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#B85C68,#7E2E3C)"><span class="ct" style="font-size:11px">The Bell Jar</span></div>
+<div><div class="ct">The Bell Jar</div><div class="ca">Sylvia Plath</div><span class="tot">No mentions yet</span></div>
+</div>
+</div>
+<div class="scroll" style="padding-top:12px;height:calc(100% - 200px)">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Movies</span><span class="chip">Quotes</span><span class="chip">Places</span></div>
+<div class="empty" style="height:calc(100% - 60px);padding:0 30px">
+<div class="ill" style="background:var(--bk-soft);color:var(--bk-accent)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 6 L12 18 M6 12 L18 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+<h3>No mentions yet</h3>
+<p>Be the first to catalog the songs, films and places Plath reaches for.</p>
+<div class="cta" style="background:var(--bk-fab)">Log a mention</div>
+</div>
+</div>
+<div class="fab" style="bottom:26px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ ADDENDUM 3 · SEARCH RESULTS ============ -->
+<div class="seclab">Addendum 03</div>
+<h2 class="sectitle">Search across books &amp; mentions</h2>
+<p class="secsub">The Library search keeps its “Search books &amp; mentions” scope. Results are split into two labelled groups — <b>Books</b> and <b>Mentions</b> — so book titles and the references inside them never blur together. A mention result shows its kind, attribution and which book it's in, and taps straight through to Mention detail. One combined empty state covers a query that matches neither.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light · grouped results</div>
+<div class="phone"><div class="scr light">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">Library</div>
+<div class="search" style="color:var(--text)"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg><span style="flex:1">gatsby</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="var(--text3)"/><path d="M5.5 5.5 L10.5 10.5 M10.5 5.5 L5.5 10.5" stroke="var(--surface)" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+<div class="chap" style="margin-top:14px"><span class="lbl">Books · 1</span><span class="ln"></span></div>
+<div class="srow"><div class="minicover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"></div><div class="mmain"><div class="st2" style="font-family:'Newsreader',serif;font-size:16px">The Great Gatsby</div><div class="sb2">F. Scott Fitzgerald · 10 mentions</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="chap" style="margin-top:16px"><span class="lbl">Mentions · 2</span><span class="ln"></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Ain't We Got Fun</div><div class="mattr">Van &amp; Schenck · in The Great Gatsby</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Beale Street Blues</div><div class="mattr">W.C. Handy · in The Great Gatsby</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+</div></div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark · combined empty</div>
+<div class="phone"><div class="scr dark">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">Library</div>
+<div class="search" style="color:var(--text)"><svg width="17" height="17" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg><span style="flex:1">gatzby</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="var(--text3)"/><path d="M5.5 5.5 L10.5 10.5 M10.5 5.5 L5.5 10.5" stroke="var(--surface)" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+<div class="empty" style="height:calc(100% - 130px)">
+<div class="ill"><svg width="34" height="34" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="2"/><rect x="12" y="12.5" width="6" height="2" rx="1" transform="rotate(45 12 12.5)" fill="currentColor"/></svg></div>
+<h3>No matches for “gatzby”</h3>
+<p>We couldn't find a book or a mention. Check the spelling, or add something new.</p>
+<div class="cta">Add a book</div>
+<div style="font-size:13.5px;font-weight:600;color:var(--text2);margin-top:2px">or log a mention you spotted</div>
+</div>
+</div></div>
+<div class="tabbar">
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ ADDENDUM 4 · BOOK-LEVEL NOTES ============ -->
+<div class="seclab">Addendum 04</div>
+<h2 class="sectitle">Notes on a whole book</h2>
+<p class="secsub">Notes can attach to a whole book, not only a mention. An overflow (⋯) menu on the Book-detail header adds one; existing book-level notes surface in a pinned card under the chips. In “My notes”, a whole-book note's context line reads “A note on the book · {book}” instead of naming a mention.</p>
+<div class="screenrow">
+
+<div class="unit">
+<div class="modelbl"><span class="dot l"></span>Light · overflow menu + pinned notes</div>
+<div class="phone"><div class="scr light perks">
+<div class="island"></div>
+<div class="sb"><span style="color:#fff">9:41</span><span class="r" style="color:#fff"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body" style="top:0">
+<div class="bhead" style="padding-top:52px">
+<div class="nav" style="padding-left:0"><span class="bk"><svg width="11" height="18" viewBox="0 0 11 18" fill="none"><path d="M9 2 L2 9 L9 16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div style="flex:1"></div><span class="bk"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span></div>
+<div class="brow">
+<div class="cover" style="width:66px;height:94px;background:linear-gradient(160deg,#E24E92,#B21F63)"><span class="ct" style="font-size:11px">The Perks of Being a Wallflower</span></div>
+<div><div class="ct">The Perks of Being a Wallflower</div><div class="ca">Stephen Chbosky</div><span class="tot">12 mentions</span></div>
+</div>
+</div>
+<div class="scroll" style="padding-top:12px;height:calc(100% - 200px)">
+<div class="chips"><span class="chip on">All</span><span class="chip">Songs</span><span class="chip">Movies</span><span class="chip">Quotes</span></div>
+<div style="background:var(--bk-soft);border-radius:14px;padding:12px 14px;margin:12px 0 4px;display:flex;gap:11px;align-items:flex-start">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="color:var(--bk-accent);flex:none;margin-top:1px"><path d="M5 4 h14 v16 l-7 -4 -7 4 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+<div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:700;color:var(--bk-accent);text-transform:uppercase;letter-spacing:.05em">Your notes on this book · 2</div><div style="font-family:'Newsreader',serif;font-style:italic;font-size:13.5px;color:var(--text);margin-top:4px;line-height:1.4">“The framing device — Charlie writing to a stranger — is the whole reason it works.”</div></div>
+<span class="chev" style="padding-top:2px"><svg width="13" height="8" viewBox="0 0 14 8" fill="none"><path d="M1 1 L7 7 L13 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+</div>
+<div class="chap"><span class="lbl">Part one</span><span class="ln"></span></div>
+<div class="mrow k-song"><div class="ki"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="6" y="2" width="1.5" height="9"/><rect x="6" y="2" width="6.3" height="1.6"/><rect x="10.8" y="2" width="1.5" height="8"/><circle cx="4.4" cy="11.6" r="2.1"/><circle cx="9.2" cy="10.6" r="2.1"/></svg></div><div class="mmain"><div class="mtitle">Asleep</div><div class="mattr">The Smiths · 1985 · p. 27</div></div><span class="chev"><svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1 L7 7 L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+</div>
+<div style="position:absolute;top:94px;right:16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);z-index:50;overflow:hidden;width:226px">
+<div style="padding:13px 14px;display:flex;align-items:center;gap:11px;font-size:14px;font-weight:500;color:var(--text);border-bottom:1px solid var(--line)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 4 h14 v16 l-7 -4 -7 4 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Add a note on this book</div>
+<div style="padding:13px 14px;display:flex;align-items:center;gap:11px;font-size:14px;font-weight:500;color:var(--text)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="2.5" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="12" r="2.5" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="19" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 11 L16 6 M8 13 L16 18" stroke="currentColor" stroke-width="1.8"/></svg>Share book</div>
+</div>
+<div class="fab" style="bottom:26px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 5 L12 19 M5 12 L19 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+<div class="unit">
+<div class="modelbl"><span class="dot d"></span>Dark · My notes (book-level + mention)</div>
+<div class="phone"><div class="scr dark perks">
+<div class="island"></div>
+<div class="sb"><span>9:41</span><span class="r"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.6" y="4.8" width="3" height="6.2" rx="1"/><rect x="9.2" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.8" y="0" width="3" height="11" rx="1"/></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor"/><rect x="2" y="2" width="15.5" height="8" rx="1.5" fill="currentColor"/><rect x="22.6" y="4" width="1.6" height="4" rx="1" fill="currentColor"/></svg></span></div>
+<div class="body"><div class="scroll">
+<div class="h1">My stuff</div>
+<div class="mtabs"><span class="mtab">My mentions</span><span class="mtab on">My notes</span></div>
+<div class="srow"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div style="font-family:'Newsreader',serif;font-style:italic;font-size:14.5px;line-height:1.42;color:var(--text)">“The framing device — Charlie writing to a stranger — is the whole reason it works.”</div><div class="sb2" style="margin-top:5px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="color:var(--text3)"><path d="M5 4 h14 v16 l-7 -4 -7 4 Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>A note on the book · The Perks of Being a Wallflower</div></div></div>
+<div class="srow"><div class="minicover" style="background:linear-gradient(160deg,#E24E92,#B21F63)"></div><div class="mmain"><div style="font-family:'Newsreader',serif;font-style:italic;font-size:14.5px;line-height:1.42;color:var(--text)">“Listened while reading this letter — devastating.”</div><div class="sb2" style="margin-top:5px">On <b style="color:var(--text2);font-weight:600">Asleep</b> · The Perks of Being a Wallflower</div></div></div>
+<div class="srow"><div class="minicover" style="background:linear-gradient(160deg,#2AA96E,#0E6E44)"></div><div class="mmain"><div style="font-family:'Newsreader',serif;font-style:italic;font-size:14.5px;line-height:1.42;color:var(--text)">“The green light is everything Gatsby can't reach.”</div><div class="sb2" style="margin-top:5px">On <b style="color:var(--text2);font-weight:600">the closing line</b> · The Great Gatsby</div></div></div>
+</div></div>
+<div class="tabbar">
+<div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="6" height="16" rx="1.5"/><rect x="10.5" y="4" width="6" height="16" rx="1.5"/><rect x="17" y="6" width="4.4" height="14" rx="1.5" transform="rotate(12 19 13)"/></svg>Library</div>
+<div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><rect x="4" y="14.5" width="16" height="8" rx="6"/></svg>My stuff</div>
+</div>
+<div class="home"></div>
+</div></div>
+</div>
+
+</div>
+
+<!-- ============ SPEC ============ -->
+<div class="seclab">Handoff spec</div>
+<h2 class="sectitle">Tokens &amp; scales</h2>
+<p class="secsub">Everything a developer needs: the per-book palette roles, fixed kind colors, semantic status colors, neutrals (both modes), the type scale and the spacing scale.</p>
+
+<div class="panels">
+
+<div class="panel" style="width:340px">
+<h4>Kind colors</h4>
+<p class="pd">Fixed app-wide. Icons, badges, counts, timeline.</p>
+<div class="swgrid">
+<div class="sw"><div class="chip2" style="background:#0E9C9C"></div><span class="nm">Song · teal</span><span class="hx">L #0E9C9C · D #33C7C7</span></div>
+<div class="sw"><div class="chip2" style="background:#E15A38"></div><span class="nm">Movie · coral</span><span class="hx">L #E15A38 · D #FF7E5C</span></div>
+<div class="sw"><div class="chip2" style="background:#C4890F"></div><span class="nm">Quote · amber</span><span class="hx">L #C4890F · D #EFBB4D</span></div>
+<div class="sw"><div class="chip2" style="background:#7A5AD6"></div><span class="nm">Book · purple</span><span class="hx">L #7A5AD6 · D #A78BF2</span></div>
+<div class="sw"><div class="chip2" style="background:#2E6FDB"></div><span class="nm">Place · blue</span><span class="hx">L #2E6FDB · D #5C93F0</span></div>
+<div class="sw"><div class="chip2" style="background:#8A8074"></div><span class="nm">Other · gray</span><span class="hx">L #8A8074 · D #A79C8D</span></div>
+</div>
+</div>
+
+<div class="panel" style="width:300px">
+<h4>Status colors</h4>
+<p class="pd">Semantic — never themed by book.</p>
+<div class="swgrid" style="grid-template-columns:1fr">
+<div class="sw"><div class="chip2" style="background:#8A8074"></div><span class="nm">Personal · neutral</span><span class="hx">L #8A8074 · D #A79C8D</span></div>
+<div class="sw"><div class="chip2" style="background:#C4890F"></div><span class="nm">Pending · amber</span><span class="hx">L #C4890F · D #EFBB4D</span></div>
+<div class="sw"><div class="chip2" style="background:#2E9E5B"></div><span class="nm">Published · green</span><span class="hx">L #2E9E5B · D #4CC07D</span></div>
+<div class="sw"><div class="chip2" style="background:#D6443E"></div><span class="nm">Rejected · red</span><span class="hx">L #D6443E · D #F0655E</span></div>
+</div>
+</div>
+
+<div class="panel" style="width:330px">
+<h4>Per-book palette</h4>
+<p class="pd">Derived from the cover. Fills 4 roles: header bg, on-header text, chip-active / FAB, soft tint.</p>
+<div style="display:flex;gap:10px;margin-bottom:14px">
+<div style="flex:1"><div class="chip2" style="height:56px;background:#D6397B;border-radius:10px"></div><div class="hx" style="margin-top:6px">Perks — mixtape pink</div><div class="tv" style="font-family:ui-monospace;font-size:10.5px;color:#8a8074">header #D6397B · on #FFF · soft L #FBE1EC / D #3A1526</div></div>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1"><div class="chip2" style="height:56px;background:#1E8A5A;border-radius:10px"></div><div class="hx" style="margin-top:6px">Gatsby — dock-light green</div><div class="tv" style="font-family:ui-monospace;font-size:10.5px;color:#8a8074">header #1E8A5A · on #FFF · soft L #DEF0E7 / D #0F3324</div></div>
+</div>
+<div class="tokrow" style="margin-top:14px"><span class="tn">header-bg</span><span class="tv">book.primary</span></div>
+<div class="tokrow"><span class="tn">on-header</span><span class="tv">#FFFFFF</span></div>
+<div class="tokrow"><span class="tn">chip-active / fab</span><span class="tv">book.primary</span></div>
+<div class="tokrow" style="border:none"><span class="tn">soft-tint</span><span class="tv">book.primary @ 8% L / 18% D</span></div>
+<p class="pd" style="margin:14px 0 0;line-height:1.5">User-added books have no curated palette yet: <b style="color:#241d15">derive the primary from the cover image</b> at add time (dominant vibrant colour, guarded so on-header text stays white / AA). If none, fall back to the house palette — primary <b style="color:#4A4038">#4A4038</b> L / <b style="color:#8a8074">#C8BCAC</b> D.</p>
+</div>
+
+<div class="panel" style="width:300px">
+<h4>Neutrals</h4>
+<p class="pd">Warm-toned. Light / Dark.</p>
+<div class="tokrow"><span class="tn">bg</span><span class="tv">#FAF7F1 · #141109</span></div>
+<div class="tokrow"><span class="tn">surface</span><span class="tv">#FFFFFF · #201B13</span></div>
+<div class="tokrow"><span class="tn">surface-2</span><span class="tv">#F1ECE2 · #2A241B</span></div>
+<div class="tokrow"><span class="tn">border</span><span class="tv">#E7E0D4 · #39322A</span></div>
+<div class="tokrow"><span class="tn">text</span><span class="tv">#211C15 · #F4EFE6</span></div>
+<div class="tokrow"><span class="tn">text-2</span><span class="tv">#6C6355 · #B4AB9B</span></div>
+<div class="tokrow" style="border:none"><span class="tn">text-3</span><span class="tv">#A69B89 · #7C7365</span></div>
+</div>
+
+<div class="panel" style="width:360px">
+<h4>Type scale</h4>
+<p class="pd">Newsreader (serif) for titles &amp; excerpts · Hanken Grotesk (sans) for UI &amp; body.</p>
+<div class="typerow"><span style="font-family:'Newsreader',serif;font-weight:600;font-size:27px">Mention title</span><span class="tv">Newsreader 600 · 27</span></div>
+<div class="typerow"><span style="font-family:'Newsreader',serif;font-weight:600;font-size:22px">Screen title</span><span class="tv">Newsreader 600 · 22–30</span></div>
+<div class="typerow"><span style="font-family:'Newsreader',serif;font-style:italic;font-size:18px">Excerpt / pull-quote</span><span class="tv">Newsreader italic · 18</span></div>
+<div class="typerow"><span style="font-weight:600;font-size:15px">Card title / row</span><span class="tv">Hanken 600 · 15</span></div>
+<div class="typerow"><span style="font-size:14px">Body copy</span><span class="tv">Hanken 400 · 14</span></div>
+<div class="typerow"><span style="font-size:12.5px;color:#6b6355">Secondary / attribution</span><span class="tv">Hanken 400 · 12.5</span></div>
+<div class="typerow" style="border:none"><span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a2917c">Label · badge</span><span class="tv">Hanken 700 · 11 · +8% tr</span></div>
+</div>
+
+<div class="panel" style="width:300px">
+<h4>Spacing &amp; radius</h4>
+<p class="pd">4-based scale. Radii below.</p>
+<div class="spacebars">
+<div class="spacebar"><div class="b" style="height:4px"></div><span class="n">4</span></div>
+<div class="spacebar"><div class="b" style="height:8px"></div><span class="n">8</span></div>
+<div class="spacebar"><div class="b" style="height:12px"></div><span class="n">12</span></div>
+<div class="spacebar"><div class="b" style="height:16px"></div><span class="n">16</span></div>
+<div class="spacebar"><div class="b" style="height:20px"></div><span class="n">20</span></div>
+<div class="spacebar"><div class="b" style="height:24px"></div><span class="n">24</span></div>
+<div class="spacebar"><div class="b" style="height:32px"></div><span class="n">32</span></div>
+</div>
+<div class="tokrow" style="margin-top:16px"><span class="tn">radius — chip / pill</span><span class="tv">20</span></div>
+<div class="tokrow"><span class="tn">radius — input / note</span><span class="tv">12</span></div>
+<div class="tokrow"><span class="tn">radius — card</span><span class="tv">18</span></div>
+<div class="tokrow"><span class="tn">radius — FAB</span><span class="tv">19</span></div>
+<div class="tokrow" style="border:none"><span class="tn">radius — sheet top</span><span class="tv">26</span></div>
+</div>
+<div class="panel" style="width:330px">
+<h4>Addenda &amp; reconciliations</h4>
+<p class="pd">Changes since the original handoff.</p>
+<div class="tokrow"><span class="tn">Place · new 6th kind</span><span class="tv">#2E6FDB / #5C93F0</span></div>
+<div class="tokrow"><span class="tn">FAB inset (right edge)</span><span class="tv">24 — on-scale</span></div>
+<div class="tokrow"><span class="tn">Per-book gradient</span><span class="tv">one value per book</span></div>
+<div class="tokrow"><span class="tn">User-added palette</span><span class="tv">cover-derived → house</span></div>
+<div class="tokrow" style="border:none"><span class="tn">Note formatting</span><span class="tv">removed · plain text</span></div>
+</div>
+
+</div>
+
+<div style="height:40px"></div>
+</div>
+</x-dc>
+</body>
+</html>
