@@ -4,11 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state — read before doing anything
 
+> **The project is shelved (owner decision, September 2026).** Development stopped after Phase 1: the owner assessed the idea as too weak to be worth building further as a product. Phase 2 and 3 were never started; their open issues (#35, #47) were closed as not planned. Don't start new feature work or suggest Phase 2 next steps unless the owner explicitly revives the project. The notes below describe the state it was left in.
+
 **Phase 1 is complete** — every feature built, device-verified, and merged (August 2026). In place: the scaffold (#3 — Expo SDK 54 managed + TypeScript + expo-router, rooted in `src/`, theme/token layer, two-tab shell), the domain models + seed JSON schema (#4), seed content for the two MVP books (#20), the repository + local-persistence layer (#22), the core screens — Library + Book detail (#7), Mention detail + notes (#8), the log-a-mention sheet + My stuff screen (#9) — plus add-a-book (#12), the `place` kind (#13), library search (#14), book removal (#34), logging a mention from My stuff (#27/#39), and book-level notes (#15).
 
 Phase 1 gained late scope in August 2026, now also shipped: provenance-grouped Library shelves so the curated books don't read as the reader's own (#46), and first-run onboarding — a welcome pager, one-time coach-marks, and the Library `⋯` menu (#44 design → #45 build).
 
-**Next up is Phase 2** (backend, accounts, the real submission → fact-check pipeline). Nothing is in progress. **GitHub issues are the live tracker** — check open issues before starting, and keep this paragraph roughly current as they close.
+Phase 2 (backend, accounts, the real submission → fact-check pipeline) would have been next; it was never started. Nothing is in progress and no issues are open.
 
 > **The seed books stay** (owner decision, August 2026). Removing them was considered so a new reader starts empty; rejected because Phase 1 has no backend, so without them the only path to content is *add a book → zero curated mentions → type your own by hand*, which hides the app's whole proposition. The seed content is product, not test scaffolding (see ARCHITECTURE.md → "Seed content (MVP)"). The confusion they cause is a **framing** problem, addressed by #46 and #44.
 

@@ -13,13 +13,19 @@ readers.
 
 ## Status
 
-**Phase 1 (MVP) is complete** — every feature built, verified on device, and
-merged (August 2026). The app runs on iPhone through Expo Go: local-first, no
-accounts, no backend, and fully usable offline.
+**Shelved (September 2026).** Development stopped after Phase 1 and the project
+is not being continued. The app is complete and working as an MVP — every Phase
+1 feature built, verified on device, and merged (August 2026) — and the repo is
+kept as a finished reference.
 
-It is not distributable yet. Expo Go is the delivery mechanism for this phase,
-so putting it on someone else's phone needs EAS builds and TestFlight — that
-arrives with the Phase 3 store release.
+It runs on iPhone through Expo Go: local-first, no accounts, no backend, and
+fully usable offline. It was never distributed; EAS builds and TestFlight were
+never set up.
+
+The Phase 2 and Phase 3 plans below were not started. Their design is preserved
+in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and the two Phase 2 issues
+(#35, #47) are closed as not planned rather than deleted, in case the project
+is ever picked up again.
 
 ## What it does
 
@@ -84,9 +90,9 @@ so versions stay compatible with the pinned Expo SDK.
 - ~~**Phase 1 — MVP**~~ ✅ **Complete.** Local-first mobile app, no
   accounts/backend. Two seed books, browse mentions, private notes, log your own
   mentions, add books (saved locally only), first-run onboarding.
-- **Phase 2 — Community**: backend, accounts, submission → fact-check →
+- **Phase 2 — Community** *(not started — project shelved)*: backend, accounts, submission → fact-check →
   moderation pipeline, content sync.
-- **Phase 3 — Integrations**: media links (Spotify/TMDB), more books via the
+- **Phase 3 — Integrations** *(not started — project shelved)*: media links (Spotify/TMDB), more books via the
   AI extraction pipeline, discovery, App Store release.
 
 ## Stack
@@ -116,4 +122,4 @@ repositories. Rationale and the full blueprint: the architecture doc below.
 
 See [docs/WORKFLOW.md](docs/WORKFLOW.md) — light Git flow: short-lived feature
 branches off `main`, PRs with conventional commits, issues per feature,
-milestones per phase. GitHub issues are the live tracker.
+milestones per phase. (Historical now that the project is shelved.)
